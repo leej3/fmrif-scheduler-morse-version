@@ -18,3 +18,5 @@ for sql in $(echo "[0-9][0-9][0-9]-*.sql" | sort); do
 	echo "=== running: $sql"
 	psql -X -q -f "$sql" -d scheduler
 done
+
+pg_dump -s -O --no-acl -f new-schema.sql scheduler
