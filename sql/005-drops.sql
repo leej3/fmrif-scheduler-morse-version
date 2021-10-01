@@ -1,6 +1,9 @@
 -- this is some test code that is not referenced anywhere
 drop function foof;
 
+-- experiment from 2009 that was never cleaned up
+drop table temp_timelapse;
+
 -- all views are unnecessary or will need to be redone anyway
 drop view departments;
 drop view departments_agt;

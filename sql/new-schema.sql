@@ -190,6 +190,13 @@ CREATE TABLE public.technicalscans (
 
 
 --
+-- Name: TABLE technicalscans; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.technicalscans IS 'Deprecated';
+
+
+--
 -- Name: technicalscans_tsid_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -207,21 +214,6 @@ CREATE SEQUENCE public.technicalscans_tsid_seq
 --
 
 ALTER SEQUENCE public.technicalscans_tsid_seq OWNED BY public.technicalscans.tsid;
-
-
---
--- Name: temp_timelapse; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.temp_timelapse (
-    deptcode_old character varying(10),
-    dept character varying(75),
-    schedtime timestamp without time zone,
-    posttime timestamp without time zone,
-    scanner character varying(25),
-    scannercode character varying(5),
-    diff double precision
-);
 
 
 --

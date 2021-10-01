@@ -5,6 +5,7 @@ COMMENT ON COLUMN tlkpdept.color_wkend_eve IS 'Deprecated';
 
 -- new deprecations
 
+comment on table technicalscans is 'Deprecated';
 comment on table tlogresearcher is 'Deprecated';
 
 comment on column tlkpresearcher.lose_to is 'Deprecated';
