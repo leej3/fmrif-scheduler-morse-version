@@ -1,0 +1,34 @@
+These are the relations and columns used by other programs
+
+tblsched (
+    schedid,
+    scannercode,
+    scheddate,
+    scheddow,
+    schedhour,
+    deptcode,
+    researchercode,
+    time_used,
+    templateid integer,
+    post_on,
+    orig_deptcode,
+    orig_instcode,
+);
+
+tbltemplate (
+    templateid,
+    templatecode,
+);
+
+tlkpdept (
+    deptcode,
+);
+
+tlkpinst (
+    instcode,
+);
+
+tlkpscanner (
+    scannercode,
+    scanner,
+);
