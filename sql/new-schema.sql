@@ -70,7 +70,7 @@ CREATE TABLE public.tblsched (
     scheddow integer NOT NULL,
     schedhour integer NOT NULL,
     deptcode character varying(10) NOT NULL,
-    researchercode character varying(15),
+    researchercode character varying(20),
     time_used boolean,
     chg_at timestamp without time zone DEFAULT ('now'::text)::timestamp(6) with time zone,
     chg_by character varying(30),
@@ -127,7 +127,7 @@ CREATE TABLE public.tbltemplate (
     dow integer NOT NULL,
     hour integer NOT NULL,
     deptcode character varying(10) NOT NULL,
-    researchercode character varying(15),
+    researchercode character varying(20),
     templatecode character varying(1) NOT NULL,
     instcode character varying(5),
     CONSTRAINT tbltemplate_dow CHECK (((dow >= 0) AND (dow <= 6))),
@@ -317,7 +317,7 @@ CREATE TABLE public.tlkpinst (
 --
 
 CREATE TABLE public.tlkpresearcher (
-    researchercode character varying(15) NOT NULL,
+    researchercode character varying(20) NOT NULL,
     lname character varying(20) NOT NULL,
     fname character varying(20) NOT NULL,
     dept_code character varying(10),
@@ -421,13 +421,13 @@ CREATE TABLE public.tlogsched (
     scheddate date,
     schedhour integer,
     deptcode character varying(10),
-    researchercode character varying(15),
+    researchercode character varying(20),
     time_used boolean,
     scannercode_old character varying(5),
     scheddate_old date,
     schedhour_old integer,
     deptcode_old character varying(10),
-    researchercode_old character varying(15),
+    researchercode_old character varying(20),
     time_used_old boolean,
     chg_at timestamp without time zone DEFAULT ('now'::text)::timestamp(6) with time zone,
     chg_by character varying(30)
