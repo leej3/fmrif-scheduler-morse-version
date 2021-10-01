@@ -225,10 +225,6 @@ CREATE TABLE public.tlkpdept (
     dept character varying(75) NOT NULL,
     dept_short character varying(20) NOT NULL,
     grp character varying(10) NOT NULL,
-    color_wkday_day character varying(6),
-    color_wkday_eve character varying(6),
-    color_wkend_day character varying(6),
-    color_wkend_eve character varying(6),
     ismain boolean DEFAULT true,
     iscurrent boolean DEFAULT true,
     inst character varying(5),
@@ -236,7 +232,9 @@ CREATE TABLE public.tlkpdept (
     link text,
     pi character varying(50),
     lose_to character varying(10),
-    email character varying(2000)
+    email character varying(2000),
+    color character varying(7) NOT NULL,
+    CONSTRAINT tlkpdept_valid_color CHECK (((color)::text ~ '^#[0-9a-f]{6}$'::text))
 );
 
 
@@ -252,34 +250,6 @@ COMMENT ON TABLE public.tlkpdept IS 'List of departments';
 --
 
 COMMENT ON COLUMN public.tlkpdept.grp IS 'Group this falls in (ie, top-level department)';
-
-
---
--- Name: COLUMN tlkpdept.color_wkday_day; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.tlkpdept.color_wkday_day IS 'Color for dept (for all times, despite name!)';
-
-
---
--- Name: COLUMN tlkpdept.color_wkday_eve; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.tlkpdept.color_wkday_eve IS 'Deprecated';
-
-
---
--- Name: COLUMN tlkpdept.color_wkend_day; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.tlkpdept.color_wkend_day IS 'Deprecated';
-
-
---
--- Name: COLUMN tlkpdept.color_wkend_eve; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.tlkpdept.color_wkend_eve IS 'Deprecated';
 
 
 --
@@ -322,6 +292,13 @@ COMMENT ON COLUMN public.tlkpdept.link IS 'Link to the Unit/Section''s home page
 --
 
 COMMENT ON COLUMN public.tlkpdept.pi IS 'Name of the primary investigatior in charge of the lab';
+
+
+--
+-- Name: COLUMN tlkpdept.color; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tlkpdept.color IS 'legend color on site';
 
 
 --

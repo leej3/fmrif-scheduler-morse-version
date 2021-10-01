@@ -1,10 +1,3 @@
--- previous deprecations, for a uniform comment scheme
-COMMENT ON COLUMN tlkpdept.color_wkday_eve IS 'Deprecated';
-COMMENT ON COLUMN tlkpdept.color_wkend_day IS 'Deprecated';
-COMMENT ON COLUMN tlkpdept.color_wkend_eve IS 'Deprecated';
-
--- new deprecations
-
 comment on table technicalscans is 'Deprecated';
 comment on table tlogresearcher is 'Deprecated';
 
