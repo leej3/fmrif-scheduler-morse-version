@@ -5,8 +5,13 @@ begin;
 -- add a default color to colorless
 update tlkpdept set color_wkday_day = '000000' where coalesce(color_wkday_day, '') = '';
 
--- normalize on 6 digit colors
-update tlkpdept set color_wkday_day = color_wkday_day || color_wkday_day where length(color_wkday_day) = 3;
+-- normalize on 6 digit colors, expand ABC to AABBCC
+update tlkpdept 
+	set color_wkday_day = 
+		substr(color_wkday_day, 1, 1) || substr(color_wkday_day, 1, 1) ||
+		substr(color_wkday_day, 2, 1) || substr(color_wkday_day, 2, 1) ||
+		substr(color_wkday_day, 3, 1) || substr(color_wkday_day, 3, 1)
+	where length(color_wkday_day) = 3;
 
 alter table tlkpdept add column color varchar(7);
 comment on column tlkpdept.color is 'legend color on site';
