@@ -17,6 +17,29 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
+-- Name: soft_del_inst(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.soft_del_inst() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $_$
+declare
+	upd text := 'update tlkpinst set hidden = true where instcode = $1';
+begin
+	execute upd using old.instcode;
+	return null;
+end;
+$_$;
+
+
+--
+-- Name: FUNCTION soft_del_inst(); Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON FUNCTION public.soft_del_inst() IS 'implementation of delete_inst trigger';
+
+
+--
 -- Name: template_default_fill(character varying, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -307,8 +330,8 @@ COMMENT ON COLUMN public.tlkpdept.color IS 'legend color on site';
 
 CREATE TABLE public.tlkpinst (
     instcode character varying(5) NOT NULL,
-    instshort character varying(10) NOT NULL,
-    inst character varying(20) NOT NULL
+    inst character varying(20) DEFAULT ''::character varying NOT NULL,
+    hidden boolean DEFAULT false
 );
 
 
@@ -539,14 +562,6 @@ ALTER TABLE ONLY public.tlkpdept
 
 
 --
--- Name: tlkpinst tlkpinst_instshort_key; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.tlkpinst
-    ADD CONSTRAINT tlkpinst_instshort_key UNIQUE (instshort);
-
-
---
 -- Name: tlkpinst tlkpinst_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -639,6 +654,20 @@ CREATE RULE template_fill AS
 
 
 --
+-- Name: tlkpinst delete_inst; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_inst BEFORE DELETE ON public.tlkpinst FOR EACH ROW EXECUTE FUNCTION public.soft_del_inst();
+
+
+--
+-- Name: TRIGGER delete_inst ON tlkpinst; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TRIGGER delete_inst ON public.tlkpinst IS 'make deletes on tlkpinst set hidden = true instead';
+
+
+--
 -- Name: tblsched tblsched_billdeptcode_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -655,11 +684,35 @@ ALTER TABLE ONLY public.tblsched
 
 
 --
+-- Name: tblsched tblsched_instcode_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.tblsched
+    ADD CONSTRAINT tblsched_instcode_fkey FOREIGN KEY (orig_instcode) REFERENCES public.tlkpinst(instcode);
+
+
+--
+-- Name: tblsched tblsched_orig_inst_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.tblsched
+    ADD CONSTRAINT tblsched_orig_inst_fkey FOREIGN KEY (orig_instcode) REFERENCES public.tlkpinst(instcode);
+
+
+--
 -- Name: tbltemplate tbltemplate_deptcode_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.tbltemplate
     ADD CONSTRAINT tbltemplate_deptcode_fkey FOREIGN KEY (deptcode) REFERENCES public.tlkpdept(deptcode) ON UPDATE CASCADE DEFERRABLE NOT VALID;
+
+
+--
+-- Name: tbltemplate tbltemplate_inst_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.tbltemplate
+    ADD CONSTRAINT tbltemplate_inst_fkey FOREIGN KEY (instcode) REFERENCES public.tlkpinst(instcode);
 
 
 --
@@ -700,6 +753,14 @@ ALTER TABLE ONLY public.technicalscans
 
 ALTER TABLE ONLY public.technicalscans
     ADD CONSTRAINT technicalscans_scannercode_fkey FOREIGN KEY (scannercode) REFERENCES public.tlkpscanner(scannercode) NOT VALID;
+
+
+--
+-- Name: tlkpdept tlkpdept_inst_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.tlkpdept
+    ADD CONSTRAINT tlkpdept_inst_fkey FOREIGN KEY (inst) REFERENCES public.tlkpinst(instcode);
 
 
 --
