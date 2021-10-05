@@ -708,6 +708,14 @@ ALTER TABLE ONLY public.tblsched
 
 
 --
+-- Name: tblsched tblsched_templateid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.tblsched
+    ADD CONSTRAINT tblsched_templateid_fkey FOREIGN KEY (templateid) REFERENCES public.tbltemplate(templateid) ON DELETE SET NULL;
+
+
+--
 -- Name: tbltemplate tbltemplate_deptcode_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
