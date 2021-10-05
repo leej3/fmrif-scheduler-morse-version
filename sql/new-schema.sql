@@ -92,7 +92,7 @@ CREATE TABLE public.tblsched (
     scheddate date NOT NULL,
     scheddow integer NOT NULL,
     schedhour integer NOT NULL,
-    deptcode character varying(10) NOT NULL,
+    deptcode character varying(10),
     researchercode character varying(20),
     time_used boolean,
     chg_at timestamp without time zone DEFAULT ('now'::text)::timestamp(6) with time zone,
@@ -149,7 +149,7 @@ CREATE TABLE public.tbltemplate (
     scannercode character varying(5) NOT NULL,
     dow integer NOT NULL,
     hour integer NOT NULL,
-    deptcode character varying(10) NOT NULL,
+    deptcode character varying(10),
     researchercode character varying(20),
     templatecode character varying(1) NOT NULL,
     instcode character varying(5),
@@ -668,19 +668,11 @@ COMMENT ON TRIGGER delete_inst ON public.tlkpinst IS 'make deletes on tlkpinst s
 
 
 --
--- Name: tblsched tblsched_billdeptcode_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.tblsched
-    ADD CONSTRAINT tblsched_billdeptcode_fkey FOREIGN KEY (billdeptcode) REFERENCES public.tlkpdept(deptcode) ON UPDATE CASCADE DEFERRABLE NOT VALID;
-
-
---
 -- Name: tblsched tblsched_deptcode_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.tblsched
-    ADD CONSTRAINT tblsched_deptcode_fkey FOREIGN KEY (deptcode) REFERENCES public.tlkpdept(deptcode) ON UPDATE CASCADE DEFERRABLE NOT VALID;
+    ADD CONSTRAINT tblsched_deptcode_fkey FOREIGN KEY (deptcode) REFERENCES public.tlkpdept(deptcode) ON UPDATE CASCADE DEFERRABLE;
 
 
 --
@@ -689,6 +681,14 @@ ALTER TABLE ONLY public.tblsched
 
 ALTER TABLE ONLY public.tblsched
     ADD CONSTRAINT tblsched_instcode_fkey FOREIGN KEY (orig_instcode) REFERENCES public.tlkpinst(instcode);
+
+
+--
+-- Name: tblsched tblsched_orig_deptcode_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.tblsched
+    ADD CONSTRAINT tblsched_orig_deptcode_fkey FOREIGN KEY (orig_deptcode) REFERENCES public.tlkpdept(deptcode) ON UPDATE CASCADE DEFERRABLE;
 
 
 --
@@ -712,7 +712,7 @@ ALTER TABLE ONLY public.tblsched
 --
 
 ALTER TABLE ONLY public.tbltemplate
-    ADD CONSTRAINT tbltemplate_deptcode_fkey FOREIGN KEY (deptcode) REFERENCES public.tlkpdept(deptcode) ON UPDATE CASCADE DEFERRABLE NOT VALID;
+    ADD CONSTRAINT tbltemplate_deptcode_fkey FOREIGN KEY (deptcode) REFERENCES public.tlkpdept(deptcode) ON UPDATE CASCADE DEFERRABLE;
 
 
 --
