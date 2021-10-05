@@ -38,6 +38,8 @@ alter table tlkpdept add constraint tlkpdept_inst_fkey foreign key (inst) refere
 
 alter table tblsched add constraint tblsched_orig_inst_fkey foreign key (orig_instcode) references tlkpinst(instcode);
 
-alter table tbltemplate add constraint tbltemplate_inst_fkey foreign key (instcode) references tlkpinst(instcode);
+-- this can now be added back as a valid constraint.
+alter table tbltemplate drop constraint tbltemplate_instcode_fkey;
+alter table tbltemplate add constraint tbltemplate_instcode_fkey foreign key (instcode) references tlkpinst(instcode);
 
 commit;

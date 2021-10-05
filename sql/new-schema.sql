@@ -708,19 +708,11 @@ ALTER TABLE ONLY public.tbltemplate
 
 
 --
--- Name: tbltemplate tbltemplate_inst_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.tbltemplate
-    ADD CONSTRAINT tbltemplate_inst_fkey FOREIGN KEY (instcode) REFERENCES public.tlkpinst(instcode);
-
-
---
 -- Name: tbltemplate tbltemplate_instcode_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.tbltemplate
-    ADD CONSTRAINT tbltemplate_instcode_fkey FOREIGN KEY (instcode) REFERENCES public.tlkpinst(instcode) NOT VALID;
+    ADD CONSTRAINT tbltemplate_instcode_fkey FOREIGN KEY (instcode) REFERENCES public.tlkpinst(instcode);
 
 
 --
