@@ -700,6 +700,14 @@ ALTER TABLE ONLY public.tblsched
 
 
 --
+-- Name: tblsched tblsched_scanner_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.tblsched
+    ADD CONSTRAINT tblsched_scanner_fkey FOREIGN KEY (scannercode) REFERENCES public.tlkpscanner(scannercode) ON UPDATE CASCADE DEFERRABLE;
+
+
+--
 -- Name: tbltemplate tbltemplate_deptcode_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -716,11 +724,19 @@ ALTER TABLE ONLY public.tbltemplate
 
 
 --
+-- Name: tbltemplate tbltemplate_scanner_and_templatecode_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.tbltemplate
+    ADD CONSTRAINT tbltemplate_scanner_and_templatecode_fkey FOREIGN KEY (scannercode, templatecode) REFERENCES public.tbltemplates(scannercode, templatecode) ON UPDATE CASCADE DEFERRABLE;
+
+
+--
 -- Name: tbltemplate tbltemplate_scannercode_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.tbltemplate
-    ADD CONSTRAINT tbltemplate_scannercode_fkey FOREIGN KEY (scannercode, templatecode) REFERENCES public.tbltemplates(scannercode, templatecode) ON UPDATE CASCADE DEFERRABLE NOT VALID;
+    ADD CONSTRAINT tbltemplate_scannercode_fkey FOREIGN KEY (scannercode) REFERENCES public.tlkpscanner(scannercode) ON UPDATE CASCADE DEFERRABLE;
 
 
 --
@@ -728,7 +744,7 @@ ALTER TABLE ONLY public.tbltemplate
 --
 
 ALTER TABLE ONLY public.tbltemplates
-    ADD CONSTRAINT tbltemplates_scannercode_fkey FOREIGN KEY (scannercode) REFERENCES public.tlkpscanner(scannercode) ON UPDATE CASCADE DEFERRABLE NOT VALID;
+    ADD CONSTRAINT tbltemplates_scannercode_fkey FOREIGN KEY (scannercode) REFERENCES public.tlkpscanner(scannercode) ON UPDATE CASCADE DEFERRABLE;
 
 
 --
