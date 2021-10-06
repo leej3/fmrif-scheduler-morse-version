@@ -314,7 +314,7 @@ COMMENT ON COLUMN public.tlkpdept.link IS 'Link to the Unit/Section''s home page
 -- Name: COLUMN tlkpdept.pi; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON COLUMN public.tlkpdept.pi IS 'Name of the primary investigatior in charge of the lab';
+COMMENT ON COLUMN public.tlkpdept.pi IS 'Deprecated';
 
 
 --
