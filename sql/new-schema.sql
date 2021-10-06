@@ -318,6 +318,13 @@ COMMENT ON COLUMN public.tlkpdept.pi IS 'Name of the primary investigatior in ch
 
 
 --
+-- Name: COLUMN tlkpdept.lose_to; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tlkpdept.lose_to IS 'Deprecated';
+
+
+--
 -- Name: COLUMN tlkpdept.color; Type: COMMENT; Schema: public; Owner: -
 --
 
