@@ -115,6 +115,13 @@ COMMENT ON TABLE public.tblsched IS 'Schedule assignments';
 
 
 --
+-- Name: COLUMN tblsched.time_used; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tblsched.time_used IS 'null initially and periodically set to true or false by DICOM sync';
+
+
+--
 -- Name: COLUMN tblsched.billdeptcode; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -184,9 +191,9 @@ CREATE SEQUENCE public.tbltemplate_templateid_seq
 CREATE TABLE public.tbltemplates (
     templatecode character varying(1) NOT NULL,
     scannercode character varying(5) NOT NULL,
-    template character varying(25),
-    comments text,
-    hidden boolean DEFAULT false
+    template character varying(25) NOT NULL,
+    comments text DEFAULT ''::text NOT NULL,
+    hidden boolean DEFAULT false NOT NULL
 );
 
 
@@ -248,14 +255,14 @@ CREATE TABLE public.tlkpdept (
     dept character varying(75) NOT NULL,
     dept_short character varying(20) NOT NULL,
     grp character varying(10) NOT NULL,
-    ismain boolean DEFAULT true,
-    iscurrent boolean DEFAULT true,
+    ismain boolean DEFAULT true NOT NULL,
+    iscurrent boolean DEFAULT true NOT NULL,
     inst character varying(5),
-    prog character varying(10),
-    link text,
+    prog character varying(10) DEFAULT ''::character varying NOT NULL,
+    link text DEFAULT ''::text NOT NULL,
     pi character varying(50),
     lose_to character varying(10),
-    email character varying(2000),
+    email character varying(2000) DEFAULT ''::character varying NOT NULL,
     color character varying(7) NOT NULL,
     CONSTRAINT tlkpdept_valid_color CHECK (((color)::text ~ '^#[0-9a-f]{6}$'::text))
 );
@@ -338,7 +345,7 @@ COMMENT ON COLUMN public.tlkpdept.color IS 'legend color on site';
 CREATE TABLE public.tlkpinst (
     instcode character varying(5) NOT NULL,
     inst character varying(20) DEFAULT ''::character varying NOT NULL,
-    hidden boolean DEFAULT false
+    hidden boolean DEFAULT false NOT NULL
 );
 
 
@@ -353,7 +360,7 @@ CREATE TABLE public.tlkpresearcher (
     dept_code character varying(10),
     researchershort character varying(15) NOT NULL,
     chg_at timestamp without time zone DEFAULT ('now'::text)::timestamp(6) with time zone NOT NULL,
-    chg_by character varying(30) NOT NULL,
+    chg_by character varying(30),
     lose_to character varying(15)
 );
 

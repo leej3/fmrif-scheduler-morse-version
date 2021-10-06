@@ -8,7 +8,7 @@ alter table tlkpinst alter column inst set default '';
 
 -- in order to maintain referential integrity and allow institutes to be removed
 -- we need a mechanism to disable institutes without deleting them
-alter table tlkpinst add column hidden boolean default false;
+alter table tlkpinst add column hidden boolean not null default false;
 
 -- since these are managed manually set up a nice soft delete system
 -- in case of accidents
