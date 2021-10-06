@@ -8,14 +8,12 @@ alter table tblsched drop constraint tblsched_billdeptcode_fkey;
 
 alter table tblsched drop constraint tblsched_deptcode_fkey;
 alter table tblsched alter column deptcode drop not null;
-update tblsched set deptcode = null where deptcode = '';
 
 ALTER TABLE ONLY tblsched
     ADD CONSTRAINT tblsched_deptcode_fkey FOREIGN KEY (deptcode) REFERENCES tlkpdept(deptcode) ON UPDATE CASCADE DEFERRABLE;
 
 -- make orig_deptcode an optional fkey as well
 
-update tblsched set orig_deptcode = null where deptcode = '';
 
 alter table tblsched add constraint tblsched_orig_deptcode_fkey foreign key (orig_deptcode) references tlkpdept(deptcode) on update cascade deferrable;
 
@@ -25,7 +23,6 @@ alter table tblsched add constraint tblsched_orig_deptcode_fkey foreign key (ori
 alter table tbltemplate alter column deptcode drop not null;
 alter table tbltemplate drop constraint tbltemplate_deptcode_fkey;
 
-update tbltemplate set deptcode = null where deptcode = '';
 
 ALTER TABLE ONLY tbltemplate
     ADD CONSTRAINT tbltemplate_deptcode_fkey FOREIGN KEY (deptcode) REFERENCES tlkpdept(deptcode) ON UPDATE CASCADE DEFERRABLE;
