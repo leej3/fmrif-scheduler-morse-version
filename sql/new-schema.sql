@@ -359,6 +359,13 @@ COMMENT ON TABLE public.tlkpresearcher IS 'List of researchers';
 
 
 --
+-- Name: COLUMN tlkpresearcher.chg_by; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tlkpresearcher.chg_by IS 'Deprecated';
+
+
+--
 -- Name: COLUMN tlkpresearcher.lose_to; Type: COMMENT; Schema: public; Owner: -
 --
 

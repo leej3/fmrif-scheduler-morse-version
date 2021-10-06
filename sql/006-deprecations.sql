@@ -1,6 +1,7 @@
 comment on table technicalscans is 'Deprecated';
 comment on table tlogresearcher is 'Deprecated';
 
+comment on column tlkpresearcher.chg_by is 'Deprecated';
 comment on column tlkpresearcher.lose_to is 'Deprecated';
 comment on column tblsched.post_on is 'Deprecated';
 
