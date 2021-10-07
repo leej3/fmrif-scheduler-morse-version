@@ -441,9 +441,9 @@ COMMENT ON COLUMN public.tlkpresearcher.lose_to IS 'Deprecated';
 CREATE TABLE public.tlkpscanner (
     scannercode character varying(5) NOT NULL,
     scanner character varying(25) NOT NULL,
-    descrip text,
-    mailinglist character varying(50),
-    active boolean DEFAULT true
+    descrip text DEFAULT ''::text NOT NULL,
+    mailinglist character varying(50) DEFAULT ''::character varying NOT NULL,
+    active boolean DEFAULT true NOT NULL
 );
 
 

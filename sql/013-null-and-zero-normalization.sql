@@ -41,4 +41,16 @@ alter table tlkpdept alter column prog set not null;
 -- deprecated column, remove constraint
 alter table tlkpresearcher alter column chg_by drop not null;
 
+update tlkpscanner set descrip = '' where descrip is null;
+alter table tlkpscanner alter column descrip set default '';
+alter table tlkpscanner alter column descrip set not null;
+
+update tlkpscanner set mailinglist = '' where mailinglist is null;
+alter table tlkpscanner alter column mailinglist set default '';
+alter table tlkpscanner alter column mailinglist set not null;
+
+update tlkpscanner set active = false where active is null;
+alter table tlkpscanner alter column active set default true;
+alter table tlkpscanner alter column active set not null;
+
 commit;
