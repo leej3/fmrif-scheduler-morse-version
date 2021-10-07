@@ -17,6 +17,54 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
+-- Name: log_sched_changes_impl(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.log_sched_changes_impl() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+	begin
+		if(TG_OP = 'UPDATE') then
+			insert into tlogsched (
+				schedid,
+				scannercode, scheddate, schedhour, deptcode, researchercode, time_used,
+				scannercode_old, scheddate_old, schedhour_old, deptcode_old, researchercode_old, time_used_old,
+				chg_at, chg_by
+			) values (
+				NEW.schedid,
+				NEW.scannercode, NEW.scheddate, NEW.schedhour, NEW.deptcode, NEW.researchercode, NEW.time_used,
+				OLD.scannercode, OLD.scheddate, OLD.schedhour, OLD.deptcode, OLD.researchercode, OLD.time_used,
+				NEW.chg_at, NEW.chg_by
+			);
+			return NEW;
+		elseif(TG_OP = 'DELETE') then
+			insert into tlogsched (
+				schedid,
+				scannercode, scheddate, schedhour, -- need these for reference, but leave rest of new values null as they're gone
+				scannercode_old, scheddate_old, schedhour_old, deptcode_old, researchercode_old, time_used_old
+			) values (
+				OLD.schedid,
+				OLD.scannercode, OLD.scheddate, OLD.schedhour, -- keep these to relate the entry back
+				OLD.scannercode, OLD.scheddate, OLD.schedhour, OLD.deptcode, OLD.researchercode, OLD.time_used
+			);
+			return OLD;
+		elseif(TG_OP = 'INSERT') then
+			insert into tlogsched (
+				schedid,
+				scannercode, scheddate, schedhour, deptcode, researchercode, time_used,
+				chg_at, chg_by
+			) values (
+				NEW.schedid,
+				NEW.scannercode, NEW.scheddate, NEW.schedhour, NEW.deptcode, NEW.researchercode, NEW.time_used,
+				NEW.chg_at, NEW.chg_by
+			);
+			return NEW;
+		end if;
+	end;
+$$;
+
+
+--
 -- Name: soft_del_inst(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -482,7 +530,7 @@ CREATE TABLE public.tlogsched (
 -- Name: TABLE tlogsched; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON TABLE public.tlogsched IS 'Logging of changes. DOES NOT USE referential integrity!';
+COMMENT ON TABLE public.tlogsched IS 'Logged changes from tblsched';
 
 
 --
@@ -686,6 +734,13 @@ CREATE TRIGGER delete_inst BEFORE DELETE ON public.tlkpinst FOR EACH ROW EXECUTE
 --
 
 COMMENT ON TRIGGER delete_inst ON public.tlkpinst IS 'make deletes on tlkpinst set hidden = true instead';
+
+
+--
+-- Name: tblsched log_sched_changes; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER log_sched_changes AFTER INSERT OR DELETE OR UPDATE ON public.tblsched FOR EACH ROW EXECUTE FUNCTION public.log_sched_changes_impl();
 
 
 --
