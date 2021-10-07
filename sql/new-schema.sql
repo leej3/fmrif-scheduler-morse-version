@@ -832,22 +832,6 @@ ALTER TABLE ONLY public.tbltemplates
 
 
 --
--- Name: technicalscans technicalscans_deptcode_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.technicalscans
-    ADD CONSTRAINT technicalscans_deptcode_fkey FOREIGN KEY (deptcode) REFERENCES public.tlkpdept(deptcode) NOT VALID;
-
-
---
--- Name: technicalscans technicalscans_scannercode_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.technicalscans
-    ADD CONSTRAINT technicalscans_scannercode_fkey FOREIGN KEY (scannercode) REFERENCES public.tlkpscanner(scannercode) NOT VALID;
-
-
---
 -- Name: tlkpdept tlkpdept_inst_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
