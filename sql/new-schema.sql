@@ -409,7 +409,8 @@ CREATE TABLE public.tlkpresearcher (
     researchershort character varying(15) NOT NULL,
     chg_at timestamp without time zone DEFAULT ('now'::text)::timestamp(6) with time zone NOT NULL,
     chg_by character varying(30),
-    lose_to character varying(15)
+    lose_to character varying(15),
+    active boolean DEFAULT true NOT NULL
 );
 
 
@@ -776,6 +777,14 @@ ALTER TABLE ONLY public.tblsched
 
 
 --
+-- Name: tblsched tblsched_researchercode_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.tblsched
+    ADD CONSTRAINT tblsched_researchercode_fkey FOREIGN KEY (researchercode) REFERENCES public.tlkpresearcher(researchercode) ON UPDATE CASCADE DEFERRABLE;
+
+
+--
 -- Name: tblsched tblsched_scanner_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -805,6 +814,14 @@ ALTER TABLE ONLY public.tbltemplate
 
 ALTER TABLE ONLY public.tbltemplate
     ADD CONSTRAINT tbltemplate_instcode_fkey FOREIGN KEY (instcode) REFERENCES public.tlkpinst(instcode);
+
+
+--
+-- Name: tbltemplate tbltemplate_researchercode_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.tbltemplate
+    ADD CONSTRAINT tbltemplate_researchercode_fkey FOREIGN KEY (researchercode) REFERENCES public.tlkpresearcher(researchercode) ON UPDATE CASCADE DEFERRABLE;
 
 
 --
