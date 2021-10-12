@@ -310,7 +310,7 @@ CREATE TABLE public.tlkpdept (
     link text DEFAULT ''::text NOT NULL,
     pi character varying(50),
     lose_to character varying(10),
-    email character varying(2000) DEFAULT ''::character varying NOT NULL,
+    email text DEFAULT ''::text NOT NULL,
     color character varying(7) NOT NULL,
     CONSTRAINT tlkpdept_valid_color CHECK (((color)::text ~ '^#[0-9a-f]{6}$'::text))
 );
@@ -443,7 +443,7 @@ CREATE TABLE public.tlkpscanner (
     scannercode character varying(5) NOT NULL,
     scanner character varying(25) NOT NULL,
     descrip text DEFAULT ''::text NOT NULL,
-    mailinglist character varying(50) DEFAULT ''::character varying NOT NULL,
+    mailinglist text DEFAULT ''::text NOT NULL,
     active boolean DEFAULT true NOT NULL
 );
 

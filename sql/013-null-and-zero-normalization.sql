@@ -30,7 +30,11 @@ update tlkpdept set link = '' where link is null;
 alter table tlkpdept alter column link set default '';
 alter table tlkpdept alter column link set not null;
 
+-- dept.email and scanner.mailing list are length limited for no solid reason
+-- use more efficient text type for these.
+
 update tlkpdept set email = '' where email is null;
+alter table tlkpdept alter column email type text;
 alter table tlkpdept alter column email set default '';
 alter table tlkpdept alter column email set not null;
 
@@ -46,6 +50,7 @@ alter table tlkpscanner alter column descrip set default '';
 alter table tlkpscanner alter column descrip set not null;
 
 update tlkpscanner set mailinglist = '' where mailinglist is null;
+alter table tlkpscanner alter column mailinglist type text;
 alter table tlkpscanner alter column mailinglist set default '';
 alter table tlkpscanner alter column mailinglist set not null;
 
