@@ -12,7 +12,7 @@ if ! test -f 003-import-data.sql; then
 fi
 
 dropdb --if-exists scheduler
-createdb scheduler
+createdb scheduler --encoding=UTF-8 --lc-collate=C.UTF-8 --lc-ctype=C.UTF-8 --template=template0
 
 for sql in $(echo "[0-9][0-9][0-9]-*.sql" | sort); do
 	echo "=== running: $sql"

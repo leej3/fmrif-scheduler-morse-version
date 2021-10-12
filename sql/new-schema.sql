@@ -240,7 +240,7 @@ CREATE TABLE public.tbltemplates (
     templatecode character varying(1) NOT NULL,
     scannercode character varying(5) NOT NULL,
     template character varying(25) NOT NULL,
-    comments text DEFAULT ''::text NOT NULL,
+    comments text DEFAULT ''::text NOT NULL COLLATE pg_catalog."en-US-x-icu",
     hidden boolean DEFAULT false NOT NULL
 );
 
@@ -300,7 +300,7 @@ ALTER SEQUENCE public.technicalscans_tsid_seq OWNED BY public.technicalscans.tsi
 
 CREATE TABLE public.tlkpdept (
     deptcode character varying(10) NOT NULL,
-    dept character varying(75) NOT NULL,
+    dept character varying(75) NOT NULL COLLATE pg_catalog."en-US-x-icu",
     dept_short character varying(20) NOT NULL,
     grp character varying(10) NOT NULL,
     ismain boolean DEFAULT true NOT NULL,
@@ -442,7 +442,7 @@ COMMENT ON COLUMN public.tlkpresearcher.lose_to IS 'Deprecated';
 CREATE TABLE public.tlkpscanner (
     scannercode character varying(5) NOT NULL,
     scanner character varying(25) NOT NULL,
-    descrip text DEFAULT ''::text NOT NULL,
+    descrip text DEFAULT ''::text NOT NULL COLLATE pg_catalog."en-US-x-icu",
     mailinglist text DEFAULT ''::text NOT NULL,
     active boolean DEFAULT true NOT NULL
 );
