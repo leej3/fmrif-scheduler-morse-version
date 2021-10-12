@@ -26,3 +26,11 @@ drop rule tblsched_updateon on tblsched;
 drop rule tlkpresearcher_del on tlkpresearcher;
 drop rule tlkpresearcher_ins on tlkpresearcher;
 drop rule tlkpresearcher_upd on tlkpresearcher;
+
+-- these indicies are redundant or no longer needed and can be removed forever
+alter table technicalscans drop constraint technicalscans_scantime_key;
+drop index scann_template;
+drop index tbltemplate_scannercode_key;
+
+-- no longer require constraint on deprecated column
+alter table tlkpresearcher drop constraint tlkpresearcher_lose_to_fkey;

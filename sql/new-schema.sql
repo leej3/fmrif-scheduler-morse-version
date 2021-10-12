@@ -616,14 +616,6 @@ ALTER TABLE ONLY public.technicalscans
 
 
 --
--- Name: technicalscans technicalscans_scantime_key; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.technicalscans
-    ADD CONSTRAINT technicalscans_scantime_key UNIQUE (scantime, scannercode);
-
-
---
 -- Name: tlkpdept tlkpdept_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -672,26 +664,10 @@ ALTER TABLE ONLY public.tlogresearcher
 
 
 --
--- Name: scann_template; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX scann_template ON public.tbltemplates USING btree (scannercode, templatecode);
-
-ALTER TABLE public.tbltemplates CLUSTER ON scann_template;
-
-
---
 -- Name: tblsched_scannercode_key; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX tblsched_scannercode_key ON public.tblsched USING btree (scannercode, scheddate, schedhour);
-
-
---
--- Name: tbltemplate_scannercode_key; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX tbltemplate_scannercode_key ON public.tbltemplate USING btree (scannercode, templatecode, dow, hour);
 
 
 --
@@ -862,14 +838,6 @@ ALTER TABLE ONLY public.tlkpdept
 
 ALTER TABLE ONLY public.tlkpresearcher
     ADD CONSTRAINT tlkpresearcher_dept_code_fkey FOREIGN KEY (dept_code) REFERENCES public.tlkpdept(deptcode) ON UPDATE CASCADE DEFERRABLE;
-
-
---
--- Name: tlkpresearcher tlkpresearcher_lose_to_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.tlkpresearcher
-    ADD CONSTRAINT tlkpresearcher_lose_to_fkey FOREIGN KEY (lose_to) REFERENCES public.tlkpresearcher(researchercode);
 
 
 --
