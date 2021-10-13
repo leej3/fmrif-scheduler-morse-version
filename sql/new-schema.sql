@@ -477,7 +477,7 @@ CREATE TABLE public.tlkpdept (
     deptcode character varying(10) NOT NULL,
     dept character varying(75) NOT NULL COLLATE pg_catalog."en-US-x-icu",
     dept_short character varying(20) NOT NULL,
-    grp character varying(10) NOT NULL,
+    grp character varying(10) DEFAULT ''::character varying NOT NULL,
     ismain boolean DEFAULT true NOT NULL,
     iscurrent boolean DEFAULT true NOT NULL,
     inst character varying(5),

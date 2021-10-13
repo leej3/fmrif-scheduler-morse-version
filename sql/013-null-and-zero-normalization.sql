@@ -26,6 +26,8 @@ alter table tlkpdept alter column ismain set not null;
 update tlkpdept set iscurrent = false where iscurrent is null;
 alter table tlkpdept alter column iscurrent set not null;
 
+alter table tlkpdept alter column grp set default '';
+
 update tlkpdept set link = '' where link is null;
 alter table tlkpdept alter column link set default '';
 alter table tlkpdept alter column link set not null;
