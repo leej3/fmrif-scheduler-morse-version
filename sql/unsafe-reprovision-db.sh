@@ -20,3 +20,5 @@ for sql in $(echo "[0-9][0-9][0-9]-*.sql" | sort); do
 done
 
 pg_dump -s -O --no-acl -f new-schema.sql scheduler
+
+./generate-schemapdf.sh
