@@ -1,8 +1,12 @@
 comment on table technicalscans is 'Deprecated';
 comment on table tlogresearcher is 'Deprecated';
 
+comment on column tlkpresearcher.lname is 'Deprecated'; -- these two need to be replaced by a new column
+comment on column tlkpresearcher.fname is 'Deprecated';
+
 comment on column tlkpresearcher.chg_by is 'Deprecated';
 comment on column tlkpresearcher.lose_to is 'Deprecated';
+comment on column tlkpresearcher.dept_code is 'Deprecated'; -- no longer explicitly tracked
 
 comment on column tlkpdept.lose_to is 'Deprecated';
 comment on column tlkpdept.pi is 'Deprecated'; -- needs to be replaced with a new column

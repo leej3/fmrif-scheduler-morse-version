@@ -163,10 +163,73 @@ COMMENT ON TABLE public.tblsched IS 'Schedule assignments';
 
 
 --
+-- Name: COLUMN tblsched.schedid; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tblsched.schedid IS 'primary key';
+
+
+--
+-- Name: COLUMN tblsched.scannercode; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tblsched.scannercode IS 'reference to tlkpscanner';
+
+
+--
+-- Name: COLUMN tblsched.scheddate; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tblsched.scheddate IS 'civil date of assignment';
+
+
+--
+-- Name: COLUMN tblsched.scheddow; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tblsched.scheddow IS 'day of the week of assignment (0 = Sunday)';
+
+
+--
+-- Name: COLUMN tblsched.schedhour; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tblsched.schedhour IS '0-indexed 24 hour civil time of assignment';
+
+
+--
+-- Name: COLUMN tblsched.deptcode; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tblsched.deptcode IS 'optional reference to tlkpdept currently assigned';
+
+
+--
+-- Name: COLUMN tblsched.researchercode; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tblsched.researchercode IS 'optional reference to tlkpresearcher currently assigned';
+
+
+--
 -- Name: COLUMN tblsched.time_used; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN public.tblsched.time_used IS 'null initially and periodically set to true or false by DICOM sync';
+
+
+--
+-- Name: COLUMN tblsched.chg_at; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tblsched.chg_at IS 'timestamp of last modification';
+
+
+--
+-- Name: COLUMN tblsched.chg_by; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tblsched.chg_by IS 'description of last entity to change this row';
 
 
 --
@@ -177,10 +240,31 @@ COMMENT ON COLUMN public.tblsched.billdeptcode IS 'Deprecated';
 
 
 --
+-- Name: COLUMN tblsched.templateid; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tblsched.templateid IS 'reference to tbltemplate that created this row (optional for historical reasons)';
+
+
+--
 -- Name: COLUMN tblsched.post_on; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN public.tblsched.post_on IS 'Deprecated';
+
+
+--
+-- Name: COLUMN tblsched.orig_deptcode; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tblsched.orig_deptcode IS 'optional reference to tlkpresearcher originally assigned';
+
+
+--
+-- Name: COLUMN tblsched.orig_instcode; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tblsched.orig_instcode IS 'optional reference to tlkpinst originally assigned';
 
 
 --
@@ -221,6 +305,62 @@ COMMENT ON TABLE public.tbltemplate IS 'Templated times for scanner use';
 
 
 --
+-- Name: COLUMN tbltemplate.templateid; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tbltemplate.templateid IS 'primary key';
+
+
+--
+-- Name: COLUMN tbltemplate.scannercode; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tbltemplate.scannercode IS 'reference to tlkpscanner';
+
+
+--
+-- Name: COLUMN tbltemplate.dow; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tbltemplate.dow IS 'day of the week (0 = Sunday) of assignment';
+
+
+--
+-- Name: COLUMN tbltemplate.hour; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tbltemplate.hour IS '0-indexed 24 hour civil time of assignment';
+
+
+--
+-- Name: COLUMN tbltemplate.deptcode; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tbltemplate.deptcode IS 'optional reference to tlkpdept assigned';
+
+
+--
+-- Name: COLUMN tbltemplate.researchercode; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tbltemplate.researchercode IS 'optional reference to tlkpresearcher assigned';
+
+
+--
+-- Name: COLUMN tbltemplate.templatecode; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tbltemplate.templatecode IS 'with scannercode, references tbltemplates';
+
+
+--
+-- Name: COLUMN tbltemplate.instcode; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tbltemplate.instcode IS 'optional reference to tlkpinst assigned';
+
+
+--
 -- Name: tbltemplate_templateid_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -250,6 +390,41 @@ CREATE TABLE public.tbltemplates (
 --
 
 COMMENT ON TABLE public.tbltemplates IS 'List of scanner templates';
+
+
+--
+-- Name: COLUMN tbltemplates.templatecode; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tbltemplates.templatecode IS 'unique half of primary key';
+
+
+--
+-- Name: COLUMN tbltemplates.scannercode; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tbltemplates.scannercode IS 'reference to tlkpscanner and other half of primary key';
+
+
+--
+-- Name: COLUMN tbltemplates.template; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tbltemplates.template IS 'human readable name of template';
+
+
+--
+-- Name: COLUMN tbltemplates.comments; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tbltemplates.comments IS 'human readable notes about template';
+
+
+--
+-- Name: COLUMN tbltemplates.hidden; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tbltemplates.hidden IS 'if hidden, the template is no longer available to create schedules';
 
 
 --
@@ -324,6 +499,27 @@ COMMENT ON TABLE public.tlkpdept IS 'List of departments';
 
 
 --
+-- Name: COLUMN tlkpdept.deptcode; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tlkpdept.deptcode IS 'primary key';
+
+
+--
+-- Name: COLUMN tlkpdept.dept; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tlkpdept.dept IS 'human readable name of department (long)';
+
+
+--
+-- Name: COLUMN tlkpdept.dept_short; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tlkpdept.dept_short IS 'human readable name of department (short)';
+
+
+--
 -- Name: COLUMN tlkpdept.grp; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -348,7 +544,7 @@ COMMENT ON COLUMN public.tlkpdept.iscurrent IS 'Is this department active';
 -- Name: COLUMN tlkpdept.inst; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON COLUMN public.tlkpdept.inst IS 'Institute (NIMH, NINDS, NCI, etc)';
+COMMENT ON COLUMN public.tlkpdept.inst IS 'optional reference to tlkpinst';
 
 
 --
@@ -380,6 +576,13 @@ COMMENT ON COLUMN public.tlkpdept.lose_to IS 'Deprecated';
 
 
 --
+-- Name: COLUMN tlkpdept.email; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tlkpdept.email IS 'contact address for department';
+
+
+--
 -- Name: COLUMN tlkpdept.color; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -395,6 +598,34 @@ CREATE TABLE public.tlkpinst (
     inst character varying(20) DEFAULT ''::character varying NOT NULL,
     hidden boolean DEFAULT false NOT NULL
 );
+
+
+--
+-- Name: TABLE tlkpinst; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.tlkpinst IS 'List of institutes';
+
+
+--
+-- Name: COLUMN tlkpinst.instcode; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tlkpinst.instcode IS 'primary key';
+
+
+--
+-- Name: COLUMN tlkpinst.inst; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tlkpinst.inst IS 'human readable name of institute';
+
+
+--
+-- Name: COLUMN tlkpinst.hidden; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tlkpinst.hidden IS 'if hidden, the institute is no longer available for selection';
 
 
 --
@@ -422,6 +653,48 @@ COMMENT ON TABLE public.tlkpresearcher IS 'List of researchers';
 
 
 --
+-- Name: COLUMN tlkpresearcher.researchercode; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tlkpresearcher.researchercode IS 'primary key';
+
+
+--
+-- Name: COLUMN tlkpresearcher.lname; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tlkpresearcher.lname IS 'Deprecated';
+
+
+--
+-- Name: COLUMN tlkpresearcher.fname; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tlkpresearcher.fname IS 'Deprecated';
+
+
+--
+-- Name: COLUMN tlkpresearcher.dept_code; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tlkpresearcher.dept_code IS 'Deprecated';
+
+
+--
+-- Name: COLUMN tlkpresearcher.researchershort; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tlkpresearcher.researchershort IS 'human readble label for researcher';
+
+
+--
+-- Name: COLUMN tlkpresearcher.chg_at; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tlkpresearcher.chg_at IS 'timestamp of last modification';
+
+
+--
 -- Name: COLUMN tlkpresearcher.chg_by; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -433,6 +706,13 @@ COMMENT ON COLUMN public.tlkpresearcher.chg_by IS 'Deprecated';
 --
 
 COMMENT ON COLUMN public.tlkpresearcher.lose_to IS 'Deprecated';
+
+
+--
+-- Name: COLUMN tlkpresearcher.active; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tlkpresearcher.active IS 'if not active, no longer be an option anywhere until marked active again';
 
 
 --
@@ -452,7 +732,42 @@ CREATE TABLE public.tlkpscanner (
 -- Name: TABLE tlkpscanner; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON TABLE public.tlkpscanner IS 'List of scanners';
+COMMENT ON TABLE public.tlkpscanner IS 'List of devices';
+
+
+--
+-- Name: COLUMN tlkpscanner.scannercode; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tlkpscanner.scannercode IS 'primary key';
+
+
+--
+-- Name: COLUMN tlkpscanner.scanner; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tlkpscanner.scanner IS 'human readable label of device';
+
+
+--
+-- Name: COLUMN tlkpscanner.descrip; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tlkpscanner.descrip IS 'description of device';
+
+
+--
+-- Name: COLUMN tlkpscanner.mailinglist; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tlkpscanner.mailinglist IS 'contact address for device';
+
+
+--
+-- Name: COLUMN tlkpscanner.active; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tlkpscanner.active IS 'if not active, no long an option anywhere';
 
 
 --
@@ -532,6 +847,118 @@ CREATE TABLE public.tlogsched (
 --
 
 COMMENT ON TABLE public.tlogsched IS 'Logged changes from tblsched';
+
+
+--
+-- Name: COLUMN tlogsched.logid; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tlogsched.logid IS 'primary key';
+
+
+--
+-- Name: COLUMN tlogsched.schedid; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tlogsched.schedid IS 'schedid for logged value, new entries always reference a row in tblsched';
+
+
+--
+-- Name: COLUMN tlogsched.scannercode; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tlogsched.scannercode IS 'value of tblsched.scannercode';
+
+
+--
+-- Name: COLUMN tlogsched.scheddate; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tlogsched.scheddate IS 'value of tblsched.scheddate';
+
+
+--
+-- Name: COLUMN tlogsched.schedhour; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tlogsched.schedhour IS 'value of tblsched.schedhour';
+
+
+--
+-- Name: COLUMN tlogsched.deptcode; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tlogsched.deptcode IS 'value of tblsched.deptcode';
+
+
+--
+-- Name: COLUMN tlogsched.researchercode; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tlogsched.researchercode IS 'value of tblsched.researchercode';
+
+
+--
+-- Name: COLUMN tlogsched.time_used; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tlogsched.time_used IS 'value of tblsched.time_used';
+
+
+--
+-- Name: COLUMN tlogsched.scannercode_old; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tlogsched.scannercode_old IS 'previous value of tblsched.scannercode';
+
+
+--
+-- Name: COLUMN tlogsched.scheddate_old; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tlogsched.scheddate_old IS 'previous value of tblsched.scheddate';
+
+
+--
+-- Name: COLUMN tlogsched.schedhour_old; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tlogsched.schedhour_old IS 'previous value of tblsched.schedhour';
+
+
+--
+-- Name: COLUMN tlogsched.deptcode_old; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tlogsched.deptcode_old IS 'previous value of tblsched.deptcode';
+
+
+--
+-- Name: COLUMN tlogsched.researchercode_old; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tlogsched.researchercode_old IS 'previous value of tblsched.researchercode';
+
+
+--
+-- Name: COLUMN tlogsched.time_used_old; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tlogsched.time_used_old IS 'previous value of tblsched.time_used';
+
+
+--
+-- Name: COLUMN tlogsched.chg_at; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tlogsched.chg_at IS 'value of tblsched.chg_at';
+
+
+--
+-- Name: COLUMN tlogsched.chg_by; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tlogsched.chg_by IS 'value of tblsched.chg_by';
 
 
 --
