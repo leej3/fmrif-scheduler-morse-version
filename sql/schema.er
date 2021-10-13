@@ -1,0 +1,99 @@
+title {
+	label: "Scheduler ER diagram",
+	font: "Helvetica",
+}
+entity {
+	font: "Helvetica",
+	border: "3",
+}
+relationship {
+	font: "Helvetica",
+	size: "25",
+	color: "#444444",
+}
+
+# deprecated tables, deprecated columns, and log tables are omitted for clarity
+
+# shade legacy tables
+
+[tblsched] {bgcolor: "#ececfc"}
+*schedid
++scannercode
+scheddate
+scheddow
+schedhour
++deptcode
++researchercode
+time_used
+chg_at
+chg_by
++templateid
++orig_deptcode
++orig_instcode
+
+tblsched 1--* tlkpscanner
+tblsched ?--* tlkpdept
+tblsched ?--* tlkpresearcher
+tblsched 1--* tbltemplate
+# use labels only when key names don't match
+tblsched ?--* tlkpdept { label: "orig_deptcode" }
+tblsched ?--* tlkpinst { label: "orig_instcode" }
+
+
+[tbltemplate] {bgcolor: "#ececfc"}
+*templateid
++scannercode
+dow
+hour
++deptcode
++researchercode
++templatecode
++instcode
+
+tbltemplate 1--* tlkpscanner
+tbltemplate ?--* tlkpdept
+tbltemplate 1--* tlkpresearcher
+tbltemplate ?--* tlkpinst
+tbltemplate 1--* tbltemplates
+
+[tbltemplates] {bgcolor: "#ececfc"}
+*templatecode
+*+scannercode
++template
+comments
+hidden
+
+tbltemplates 1--* tlkpscanner
+
+[tlkpdept] {bgcolor: "#ececfc"}
+*deptcode
+dept
+dept_short
+grp
+ismain
+iscurrent
++inst
+prog
+link
+email
+color
+
+tlkpdept ?--* tlkpinst
+
+[tlkpinst] {bgcolor: "#ececfc"}
+*instcode
+inst
+hidden
+
+[tlkpresearcher] {bgcolor: "#ececfc"}
+*researchercode
+researchershort
+chg_at
+active
+
+[tlkpscanner] {bgcolor: "#ececfc"}
+*scannercode
+scanner
+descrip
+mailinglist
+active
