@@ -121,14 +121,13 @@ def render_error_page(code: int, msg: str, show_login: bool = False) -> Tuple[st
         "code": code,
         "msg": msg,
         "show_login": show_login,
-        "login_url_prefix": app.config["LOGIN_URL_PREFIX"],
     }
     return render_template("error.html", **data), code
 
 
 @app.errorhandler(403)
 def access_denied(e):
-    # Redirect to login page instead of showing SiteMinder message
+    # Redirect to login page if user is not authenticated
     if g.user is None:
         return redirect(url_for('auth.login'))
     return render_error_page(403, e.description)
@@ -1012,7 +1011,6 @@ def entry_log(id):
 
     template = None
     templateObject = logic.get_template_from_templateid(templateid)
-    print(templateObject)
     if templateObject is not None:
         template = {
             "id": templateObject.id,

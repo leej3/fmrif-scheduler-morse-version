@@ -102,11 +102,6 @@ def read_signed_message(signature: str) -> Optional[List[str]]:
         return None
 
 
-def discard_user_titles(name: str) -> str:
-    # user's name is followed by bracketed titles that can be discarded
-    return re.sub(" [([].*$", "", name)
-
-
 def normalize_name(name: str) -> str:
     if "," in name:
         last, first = [s.strip() for s in name.split(",", 1)]

@@ -1,5 +1,5 @@
 """Authentication views"""
-from flask import Blueprint, request, redirect, url_for, flash, render_template
+from flask import Blueprint, redirect, url_for, flash, render_template
 from flask import current_app as app
 
 from .ldap import LDAPClient

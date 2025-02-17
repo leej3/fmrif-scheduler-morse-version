@@ -43,7 +43,7 @@ def clean_env(monkeypatch):
 
 @pytest.mark.parametrize("config_class,field,default,valid_value,invalid_value", [
     (CoreConfig, "site_sender", "noreply@example.com", "test@example.com", "invalid-email"),
-    (LDAPConfig, "port", 389, 636, "invalid"),
+    (LDAPConfig, "port", 5636, 636, "invalid"),
     (MailConfig, "port", 25, 587, "invalid"),
     (SessionConfig, "permanent_lifetime", 28800, 3600, "invalid"),
 ])
@@ -199,16 +199,23 @@ def _get_nested_attr(obj: Any, path: str) -> Any:
 
 def test_ldap_config_validation():
     """Test LDAP configuration validation"""
-    config = LDAPConfig(
+    # Test default values
+    config = LDAPConfig()
+    assert config.host == "NIHIAMANON2.nih.gov"
+    assert config.base_dn == "OU=Users,DC=nih,DC=gov"
+    assert config.token_lifetime == 28800
+    
+    # Test custom values
+    custom_config = LDAPConfig(
         host="test.ldap.com",
         bind_dn="cn=admin,dc=example,dc=com",
         bind_password="secret",
         base_dn="dc=example,dc=com"
     )
     
-    assert config.host == "test.ldap.com"
-    assert config.bind_dn == "cn=admin,dc=example,dc=com"
-    assert config.token_lifetime == 28800  # Default value
+    assert custom_config.host == "test.ldap.com"
+    assert custom_config.bind_dn == "cn=admin,dc=example,dc=com"
+    assert custom_config.token_lifetime == 28800
 
 def test_server_config():
     """Test server configuration"""
@@ -267,30 +274,6 @@ def test_database_config_validation():
                 os.environ[var] = value
             elif var in os.environ:
                 del os.environ[var]
-
-def test_ldap_config_validation():
-    """Test LDAPConfig validation"""
-    # Test default values
-    config = LDAPConfig()
-    assert config.host == "ldap.forumsys.com"
-    assert config.port == 389
-    assert config.use_ssl is False
-    assert config.token_lifetime == 28800
-    
-    # Test custom values
-    config = LDAPConfig(
-        host="test.ldap.com",
-        port=636,
-        use_ssl=True,
-        bind_dn="cn=admin",
-        bind_password="secret",
-        base_dn="dc=test,dc=com",
-        token_lifetime=3600
-    )
-    assert config.host == "test.ldap.com"
-    assert config.port == 636
-    assert config.use_ssl is True
-    assert config.token_lifetime == 3600
 
 def test_core_config_validation():
     """Test CoreConfig validation"""

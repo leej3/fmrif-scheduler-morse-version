@@ -16,17 +16,14 @@ Pydantic-settings is used to load the environment variables from the .env file.
   and the separator "__" e.g. DATABASE__HOST=postgres (where DATABASE is the
   nested config class instance)
 """
-# TODO: need to rewrite db host and port when in container, remove traces of DATABASE__
+
 import logging
 from typing import List, Optional, Dict, Any
-from pydantic import BaseModel, Field, validator, model_validator, EmailStr, field_validator
+from pydantic import BaseModel, EmailStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 import ipaddress
-from dataclasses import dataclass
 import os
-import warnings
 from pathlib import Path
-from dotenv import load_dotenv
 from scheduler.find_env_file import find_envfile
 from urllib.parse import quote
 
@@ -38,21 +35,45 @@ logger = logging.getLogger(__name__)
 env_file = find_envfile()
 
 class LDAPConfig(BaseModel):
-    """LDAP connection and authentication settings"""
-    # Required settings with development defaults
-    host: str = "ldap.forumsys.com"
-    bind_dn: str = "cn=read-only-admin,dc=example,dc=com"
-    bind_password: str = "password"
-    base_dn: str = "dc=example,dc=com"
-
-    # Optional settings with sensible defaults
-    port: int = 389
-    use_ssl: bool = False
-    user_dn_template: str = "uid={username},dc=example,dc=com"
-    group_dn: str = "ou=groups,dc=example,dc=com"
-    user_search_filter: str = "(objectClass=person)"
-    group_search_filter: str = "(objectClass=groupOfUniqueNames)"
-    token_lifetime: int = 28800
+    """LDAP connection and authentication settings for NIH"""
+    # Required settings for NIH LDAP
+    host: str = "NIHIAMANON2.nih.gov"  # Primary LDAP server
+    base_dn: str = "OU=Users,DC=nih,DC=gov"
+    bind_dn: str = ""  # Anonymous bind
+    bind_password: str = ""  # Anonymous bind
+    
+    # Add this line for user DN template
+    user_dn_template: str = "CN={username}.NIH,OU=Users,DC=nih,DC=gov"
+    
+    # NIH LDAP specific settings
+    port: int = 5636
+    use_ssl: bool = True
+    user_search_filter: str = "(samaccountname={username})"
+    required_user_attrs: List[str] = [
+        "mail",              # For notifications
+        "department"         # For basic user info
+    ]
+    user_id_attribute: str = "sAMAccountName"
+    user_object_class: str = "user"
+    
+    # SSL/TLS settings
+    tls_reqcert: str = "never"
+    tls_cacertdir: str = "/etc/openldap/cacerts"
+    
+    # NIH LDAP behavior settings
+    force_upper_case_realm: bool = True
+    id_mapping: bool = False
+    referrals: bool = False
+    
+    # Session settings
+    token_lifetime: int = 28800  # 8 hours
+    
+    # All NIH LDAP servers for redundancy
+    backup_hosts: List[str] = [
+        "NIHIAMANON1.nih.gov",
+        "NIHIAMANON3.nih.gov",
+        "NIHIAMANON4.nih.gov"
+    ]
 
 class DatabaseConfig(BaseModel):
     # Required credentials with development defaults
@@ -67,7 +88,6 @@ class CoreConfig(BaseModel):
     secret_key: str = "dev-key-change-in-prod"
     site_sender: EmailStr = "noreply@example.com"
     listserv: str = "listserv@example.com"
-    login_url_prefix: str = "https://auth.example.com/login"
     nih_networks: List[str] = [
         "127.0.0.1/32",
         "::1/128",
@@ -228,7 +248,6 @@ class AppConfig(dict):
             'SESSION_SQLALCHEMY_TABLE': settings.session.sqlalchemy_table,
             'SUPERUSER_MODE': settings.rbac.superuser_mode,
             'NIH_NETWORKS': [ipaddress.ip_network(net) for net in settings.core.nih_networks],
-            'LOGIN_URL_PREFIX': settings.core.login_url_prefix,
             'SITE_DEFAULT_SENDER': settings.core.site_sender,
         })
 
