@@ -1,8 +1,10 @@
 import logging
 from pathlib import Path
+
 import dotenv
-import os
+
 logger = logging.getLogger(__name__)
+
 
 def find_envfile():
     env_file = dotenv.find_dotenv()
