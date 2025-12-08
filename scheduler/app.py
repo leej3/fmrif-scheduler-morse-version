@@ -817,7 +817,9 @@ def device_breadcrumb(device: model.Device) -> Breadcrumb_links:
 
 
 def device_subpage_nav(device: model.Device, perms: logic.DevicePerms) -> Subpage_links:
-    can = lambda p: perms.admin or (p and device.active)
+    def can(permission: bool) -> bool:
+        return perms.admin or (permission and device.active)
+
     edit = can(perms.dev_pi)
     id = device.id
     return subpage_nav(
@@ -1283,14 +1285,16 @@ def template_breadcrumb(
 
 
 def template_subpage_nav(device: model.Device) -> Subpage_links:
-    url = lambda name: url_for(f"device_tmpl{name}", the_device=device.id)
+    def build_url(name: str) -> str:
+        return url_for(f"device_tmpl{name}", the_device=device.id)
+
     return subpage_nav(
         "templates",
         [
-            (True, "apply", url("")),
-            (True, "active", url("_list")),
-            (True, "inactive", url("_archive")),
-            (True, "add template", url("_add")),
+            (True, "apply", build_url("")),
+            (True, "active", build_url("_list")),
+            (True, "inactive", build_url("_archive")),
+            (True, "add template", build_url("_add")),
         ],
     )
 
@@ -1356,11 +1360,17 @@ def device_tmpl_add(the_device):
 def template_single_subpage_nav(
     device: model.Device, tmpl: model.Template
 ) -> Subpage_links:
-    entry = lambda lbl, url: (
-        True,
-        lbl,
-        url_for(f"device_tmpl_{url}_edit", the_device=device.id, the_template=tmpl.id),
-    )
+    def entry(label: str, url_suffix: str) -> tuple[bool, str, str]:
+        return (
+            True,
+            label,
+            url_for(
+                f"device_tmpl_{url_suffix}_edit",
+                the_device=device.id,
+                the_template=tmpl.id,
+            ),
+        )
+
     return subpage_nav(
         "edit template",
         [

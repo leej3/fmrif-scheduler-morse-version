@@ -169,7 +169,7 @@ function clear_server_errors_on_input() {
 }
 
 async function confirmDialog(titleText, message, opts = {}) {
-  return new Promise((resolve, _) => {
+  return new Promise((resolve) => {
     const con = document.getElementById("confirm-dialog-container");
     const modal = con.querySelector(".dialog-box-container");
     const title = con.querySelector("#dialog-title");
@@ -190,7 +190,7 @@ async function confirmDialog(titleText, message, opts = {}) {
       disableBodyScroll(modal);
       cancel.focus();
     });
-    dialog.on("hide", (_, evt) => {
+    dialog.on("hide", (evt) => {
       enableBodyScroll(modal);
       // only true if confirm button was used
       resolve(
@@ -290,11 +290,11 @@ function wire_editor_expando() {
   if (!expando) {
     return;
   }
-  expando.addEventListener("click", (evt) => {
+  expando.addEventListener("click", () => {
     // parse expands, make sure it's a valid list of rows, and load the referenced nodes
     const controls = document.querySelectorAll(
       json_or(expando.dataset["expands"], [])
-        .filter((i) => /^\d+$/.test)
+        .filter((s) => /^\d+$/.test(s))
         .map((s) => "#row-" + s)
         .join(","),
     );
@@ -444,7 +444,7 @@ function logDialog(titleText, id, template) {
     }
     body.innerHTML = fmt_log(data);
   });
-  dialog.on("hide", (_, evt) => {
+  dialog.on("hide", () => {
     // reset scroll lock, zero template, and cancel http requests
     enableBodyScroll(modal);
     con.classList.remove("dialog-loaded");
@@ -714,7 +714,7 @@ function editor_grid() {
   const [focusableBefore, focusableAfter] = focusables_around(container);
 
   // move focus to selected item in grid in the next microtask
-  const focusContainer = (evt) => {
+  const focusContainer = () => {
     container.scrollIntoView();
     setTimeout(() => {
       grid.focus(...grid.pos());
@@ -774,7 +774,7 @@ function editor_grid() {
           grid.focus(...grid.pos(), true);
           break;
 
-        case "Tab":
+        case "Tab": {
           // if we're in a cell, only need to worry about focus exiting the cell
           const t = evt.target;
           const [first, last] = edge_focusables(grid.selectedCell());
@@ -791,6 +791,7 @@ function editor_grid() {
             evt.preventDefault();
           }
           break;
+        }
       }
 
       return;
@@ -890,7 +891,7 @@ function editor_dialog(save, showNotifications, titleText, innerHTML, then) {
     disableBodyScroll(modal);
     cancel.focus();
   });
-  dialog.on("hide", (_, evt) => {
+  dialog.on("hide", (evt) => {
     enableBodyScroll(modal);
     // only follow continuation if confirm button was used
     if (evt.target && evt.target.name && evt.target.name == "confirm" && then) {
@@ -925,7 +926,7 @@ function result_dialog(proc) {
     body.innerHTML = data;
     changesSaved = true;
   });
-  dialog.on("hide", (_, evt) => {
+  dialog.on("hide", () => {
     enableBodyScroll(modal);
     con.classList.remove("dialog-loaded");
     body.innerHTML = "";
@@ -1121,10 +1122,10 @@ class Cell {
       this.reset();
       this.update();
     });
-    this.elm.addEventListener("input", (evt) => {
+    this.elm.addEventListener("input", () => {
       this.update();
     });
-    this.member.addEventListener("list-change", (evt) => {
+    this.member.addEventListener("list-change", () => {
       this.update();
     });
   }
@@ -1516,7 +1517,7 @@ function fmt_save_results(data, cells, human_hours) {
           acc.push(`${err.value} is no longer a valid ${key}`);
           break;
 
-        case "overwrote":
+        case "overwrote": {
           const expected = err.expected;
           const got = err.got;
           acc.push(
@@ -1534,6 +1535,7 @@ function fmt_save_results(data, cells, human_hours) {
             acc.push("blank entry");
           }
           break;
+        }
       }
       acc.push("</dd>");
     }

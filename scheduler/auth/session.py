@@ -24,7 +24,7 @@ def get_ldap_client() -> LDAPClient:
 def login_user(user: LDAPUser) -> None:
     """Log in a user by creating session and token"""
     # Create/update local user record
-    local_user = upsert_user(user.username, user.email, user.display_name)
+    upsert_user(user.username, user.email, user.display_name)
     db.session.commit()
 
     # Store token with LDAP-configured expiry

@@ -37,7 +37,7 @@ def ldap_connection():
     # Cleanup
     try:
         conn.unbind()
-    except:
+    except Exception:
         pass
 
 

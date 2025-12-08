@@ -1490,7 +1490,7 @@ def validate_templates_before_application(device: model.Device, templates: str):
     q = (
         MT.query.filter(MT.device == device.id)
         .filter(id_col.in_(ts))
-        .filter(MT.hidden == False)
+        .filter(MT.hidden.is_(False))
     )
     n = q.count()
     if n != len(ts):

@@ -19,6 +19,7 @@ repos:
       hooks:
         - id: prettier
           args: ["--write"]
+          exclude: "scheduler/templates/macros.html"
           files: "scheduler/static/.*\\.(js|jsx|ts|tsx|json|css|scss|md|html)$|scheduler/templates/.*\\.(js|jsx|ts|tsx|json|css|scss|md|html)$"
 
     - repo: https://github.com/pre-commit/mirrors-eslint
@@ -26,8 +27,8 @@ repos:
       hooks:
         - id: eslint
           name: eslint
-          files: "scheduler/static/.*\\.(js|jsx|ts|tsx|json|css|scss|md|html)$|scheduler/templates/.*\\.(js|jsx|ts|tsx|json|css|scss|md|html)$"
-          args: ["--fix", "--no-ignore"]
+          files: "scheduler/static/.*\\.(js|jsx|ts|tsx)$"
+          args: ["--fix"]
 
     - repo: https://github.com/pre-commit/pre-commit-hooks
       rev: v4.6.0

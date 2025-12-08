@@ -120,7 +120,7 @@ def test_config_hierarchy(
 
     # Get default value
     settings = Settings()
-    default_value = _get_nested_attr(settings, config_path)
+    _get_nested_attr(settings, config_path)
 
     # Test .env file override
     env_content = f"{env_var}={env_value}\n"  # Use the actual test value instead of 'envfile-value'
