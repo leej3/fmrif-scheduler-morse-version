@@ -23,7 +23,7 @@ import os
 from typing import Dict, List, Optional
 from urllib.parse import quote
 
-from pydantic import BaseModel, EmailStr, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from scheduler.find_env_file import find_envfile
@@ -36,47 +36,33 @@ logger = logging.getLogger(__name__)
 env_file = find_envfile()
 
 
-class LDAPConfig(BaseModel):
-    """LDAP connection and authentication settings for NIH"""
+class EntraConfig(BaseModel):
+    """Microsoft Entra / Azure AD application configuration."""
 
-    # Required settings for NIH LDAP
-    host: str = "NIHIAMANON2.nih.gov"  # Primary LDAP server
-    base_dn: str = "OU=Users,DC=nih,DC=gov"
-    bind_dn: str = ""  # Anonymous bind
-    bind_password: str = ""  # Anonymous bind
+    client_id: str = ""
+    tenant_id: str = ""
+    discovery_url: str = ""
+    redirect_uri: str = ""
+    allowed_audiences: List[str] = Field(default_factory=list)
+    jwks_cache_ttl: int = 60 * 60  # seconds
 
-    # Add this line for user DN template
-    user_dn_template: str = "CN={username}.NIH,OU=Users,DC=nih,DC=gov"
+    @property
+    def issuer(self) -> str:
+        """Expected issuer for tokens from this tenant."""
+        if not self.tenant_id:
+            return ""
+        return f"https://login.microsoftonline.com/{self.tenant_id}/v2.0"
 
-    # NIH LDAP specific settings
-    port: int = 5636
-    use_ssl: bool = True
-    user_search_filter: str = "(samaccountname={username})"
-    required_user_attrs: List[str] = [
-        "mail",  # For notifications
-        "department",  # For basic user info
-    ]
-    user_id_attribute: str = "sAMAccountName"
-    user_object_class: str = "user"
-
-    # SSL/TLS settings
-    tls_reqcert: str = "never"
-    tls_cacertdir: str = "/etc/openldap/cacerts"
-
-    # NIH LDAP behavior settings
-    force_upper_case_realm: bool = True
-    id_mapping: bool = False
-    referrals: bool = False
-
-    # Session settings
-    token_lifetime: int = 28800  # 8 hours
-
-    # All NIH LDAP servers for redundancy
-    backup_hosts: List[str] = [
-        "NIHIAMANON1.nih.gov",
-        "NIHIAMANON3.nih.gov",
-        "NIHIAMANON4.nih.gov",
-    ]
+    @property
+    def audiences(self) -> List[str]:
+        """Compute the set of acceptable audiences for JWT validation."""
+        audiences = [aud for aud in self.allowed_audiences if aud]
+        if self.client_id and self.client_id not in audiences:
+            audiences.append(self.client_id)
+        api_audience = f"api://{self.client_id}" if self.client_id else ""
+        if api_audience and api_audience not in audiences:
+            audiences.append(api_audience)
+        return audiences
 
 
 class DatabaseConfig(BaseModel):
@@ -198,7 +184,7 @@ class Settings(BaseSettings):
     database: DatabaseConfig = DatabaseConfig()
     mail: MailConfig = MailConfig()
     session: SessionConfig = SessionConfig()
-    ldap: LDAPConfig = LDAPConfig()
+    entra: EntraConfig = EntraConfig()
     rbac: RBACConfig = RBACConfig()
 
     """Database connection settings using standard PG* variables"""
@@ -271,6 +257,13 @@ class AppConfig(dict):
                     ipaddress.ip_network(net) for net in settings.core.nih_networks
                 ],
                 "SITE_DEFAULT_SENDER": settings.core.site_sender,
+                "ENTRA_CLIENT_ID": settings.entra.client_id,
+                "ENTRA_TENANT_ID": settings.entra.tenant_id,
+                "ENTRA_DISCOVERY_URL": settings.entra.discovery_url,
+                "ENTRA_REDIRECT_URI": settings.entra.redirect_uri,
+                "ENTRA_AUDIENCES": settings.entra.audiences,
+                "ENTRA_ISSUER": settings.entra.issuer,
+                "ENTRA_JWKS_CACHE_TTL": settings.entra.jwks_cache_ttl,
             }
         )
 

@@ -11,7 +11,7 @@ from flask.wrappers import Response
 from flask_session import Session
 from itsdangerous.url_safe import URLSafeSerializer
 
-from scheduler.auth.session import get_user_from_session
+from scheduler.auth.session import authenticate_bearer_token, get_user_from_session, require_jwt
 from scheduler.auth.views import auth
 
 from . import logic, message, model
@@ -28,7 +28,9 @@ app.config.update(
     SESSION_COOKIE_SECURE=True,
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE="Strict",
-    PERMANENT_SESSION_LIFETIME=timedelta(seconds=settings.ldap.token_lifetime),
+    PERMANENT_SESSION_LIFETIME=timedelta(
+        seconds=settings.session.permanent_lifetime
+    ),
 )
 
 
@@ -71,9 +73,15 @@ def setup_user():
 
     # DEVELOPMENT ONLY: Superuser mode for testing
     # ToDo: Remove this block in production. This is a development hack for testing purposes.
-    # In production, always use proper authentication via LDAP.
+    # In production, always use proper authentication via Entra JWT.
     if current_app.config.get("SUPERUSER_MODE", False):
         g.user = get_user_from_session() or logic.get_or_create_superuser()
+        return
+
+    # Try bearer token first (stateless API calls)
+    bearer_user = authenticate_bearer_token(request.headers.get("Authorization"))
+    if bearer_user:
+        g.user = bearer_user
         return
 
     # Try to get user from session
@@ -81,13 +89,7 @@ def setup_user():
 
 
 def login_required(f):
-    @wraps(f)
-    def protect(*args, **kwargs):
-        if g.user is None:
-            abort(403, "Access denied: Authentication required")
-        return f(*args, **kwargs)
-
-    return protect
+    return require_jwt(f)
 
 
 def in_network_required(f):
@@ -103,9 +105,8 @@ def in_network_required(f):
 
 def active_user_required(f):
     @wraps(f)
+    @require_jwt
     def protect(*args, **kwargs):
-        if g.user is None:
-            abort(403, "Access denied: Authentication required")
         if not g.user.active:
             abort(403, "Access denied: this page is limited to active users")
         return f(*args, **kwargs)
@@ -115,6 +116,7 @@ def active_user_required(f):
 
 def admin_only(f):
     @wraps(f)
+    @require_jwt
     def protect(*args, **kwargs):
         if not (g.user is not None and g.user.active and logic.is_admin(g.user)):
             abort(403, "Access denied: this page is admin only")

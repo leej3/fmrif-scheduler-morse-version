@@ -44,7 +44,7 @@ const PKCE_VERIFIER_KEY = "pkce_verifier";
 async function initializeAuth() {
   try {
     // Load Entra configuration
-    const response = await fetch("/scheduler/static/config/entra-config.json");
+    const response = await fetch("/static/config/entra-config.json");
     if (!response.ok) {
       throw new Error(`Failed to load configuration: ${response.status}`);
     }
@@ -64,8 +64,8 @@ async function initializeAuth() {
       } else {
         // Token expired, try to refresh
         console.log("Token expired, attempting refresh...");
-        const refreshToken = sessionStorage.getItem(REFRESH_TOKEN_KEY);
-        if (refreshToken) {
+        const storedRefreshToken = sessionStorage.getItem(REFRESH_TOKEN_KEY);
+        if (storedRefreshToken) {
           const newAuth = await refreshToken();
           if (newAuth && newAuth.token) {
             return { isAuthenticated: true, token: newAuth.token };

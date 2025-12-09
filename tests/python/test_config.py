@@ -11,7 +11,7 @@ from pydantic import ValidationError
 from scheduler.config import (
     AppConfig,
     CoreConfig,
-    LDAPConfig,
+    EntraConfig,
     MailConfig,
     RBACConfig,
     ServerConfig,
@@ -45,9 +45,11 @@ def clean_env(monkeypatch):
         "MAIL__SERVER",
         "MAIL__PORT",
         "MAIL__USE_TLS",
-        "LDAP__HOST",
-        "LDAP__PORT",
-        "LDAP__USE_SSL",
+        "ENTRA__CLIENT_ID",
+        "ENTRA__TENANT_ID",
+        "ENTRA__DISCOVERY_URL",
+        "ENTRA__REDIRECT_URI",
+        "ENTRA__JWKS_CACHE_TTL",
         "SERVER__SERVER_NAME",
         "SERVER__APPLICATION_ROOT",
         "SESSION__COOKIE_NAME",
@@ -74,7 +76,7 @@ def clean_env(monkeypatch):
             "test@example.com",
             "invalid-email",
         ),
-        (LDAPConfig, "port", 5636, 636, "invalid"),
+        (EntraConfig, "jwks_cache_ttl", 3600, 7200, "invalid"),
         (MailConfig, "port", 25, 587, "invalid"),
         (SessionConfig, "permanent_lifetime", 28800, 3600, "invalid"),
     ],
@@ -104,7 +106,7 @@ def test_config_field_validation(
         ("PGPORT", "5433", "PGPORT", 5433),
         ("CORE__SECRET_KEY", "env-key", "core.secret_key", "env-key"),
         ("MAIL__SERVER", "env-smtp", "mail.server", "env-smtp"),
-        ("LDAP__HOST", "env-ldap", "ldap.host", "env-ldap"),
+        ("ENTRA__CLIENT_ID", "env-client", "entra.client_id", "env-client"),
         ("SERVER__SERVER_NAME", "env:8080", "server.server_name", "env:8080"),
     ],
 )
@@ -259,25 +261,23 @@ def _get_nested_attr(obj: Any, path: str) -> Any:
     return obj
 
 
-def test_ldap_config_validation():
-    """Test LDAP configuration validation"""
-    # Test default values
-    config = LDAPConfig()
-    assert config.host == "NIHIAMANON2.nih.gov"
-    assert config.base_dn == "OU=Users,DC=nih,DC=gov"
-    assert config.token_lifetime == 28800
+def test_entra_config_validation():
+    """Test Entra configuration validation and derived properties"""
+    config = EntraConfig()
+    assert config.jwks_cache_ttl == 3600
+    assert config.issuer == ""
+    assert config.audiences == []
 
-    # Test custom values
-    custom_config = LDAPConfig(
-        host="test.ldap.com",
-        bind_dn="cn=admin,dc=example,dc=com",
-        bind_password="secret",
-        base_dn="dc=example,dc=com",
+    custom_config = EntraConfig(
+        client_id="client-id",
+        tenant_id="tenant-id",
+        allowed_audiences=["custom-audience"],
     )
 
-    assert custom_config.host == "test.ldap.com"
-    assert custom_config.bind_dn == "cn=admin,dc=example,dc=com"
-    assert custom_config.token_lifetime == 28800
+    assert custom_config.issuer.endswith("tenant-id/v2.0")
+    assert "client-id" in custom_config.audiences
+    assert "api://client-id" in custom_config.audiences
+    assert "custom-audience" in custom_config.audiences
 
 
 def test_server_config():
@@ -444,7 +444,7 @@ PGHOST=testhost
 PGPORT=5433
 CORE__SECRET_KEY=test-secret
 MAIL__SERVER=test-smtp
-LDAP__HOST=test-ldap
+ENTRA__CLIENT_ID=test-client
 """
     temp_env_file.write_text(env_content.strip())
 
@@ -453,7 +453,7 @@ LDAP__HOST=test-ldap
     monkeypatch.setenv("PGPORT", "5433")
     monkeypatch.setenv("CORE__SECRET_KEY", "test-secret")
     monkeypatch.setenv("MAIL__SERVER", "test-smtp")
-    monkeypatch.setenv("LDAP__HOST", "test-ldap")
+    monkeypatch.setenv("ENTRA__CLIENT_ID", "test-client")
 
     # Create Settings with our temp env file
     settings = Settings(_env_file=temp_env_file)
@@ -463,7 +463,7 @@ LDAP__HOST=test-ldap
     assert settings.PGPORT == 5433
     assert settings.core.secret_key == "test-secret"
     assert settings.mail.server == "test-smtp"
-    assert settings.ldap.host == "test-ldap"
+    assert settings.entra.client_id == "test-client"
 
     # Verify non-overridden values maintain defaults
     assert settings.PGUSER == "postgres"

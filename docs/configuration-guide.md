@@ -52,13 +52,15 @@ DATABASE__DB=scheduler
 
 #### Authentication Settings
 ```env
-## LDAP Settings (when not in superuser mode)
-LDAP__HOST=ldap
-LDAP__PORT=389
-LDAP__USE_SSL=false
-LDAP__BIND_DN=cn=read-only-admin,dc=example,dc=com
+# Entra / OIDC settings
+ENTRA__CLIENT_ID=00000000-0000-0000-0000-000000000000
+ENTRA__TENANT_ID=00000000-0000-0000-0000-000000000000
+ENTRA__DISCOVERY_URL=https://login.microsoftonline.com/${ENTRA__TENANT_ID}/v2.0/.well-known/openid-configuration
+ENTRA__REDIRECT_URI=https://fmrif-schedule-backend-staging.nimh.nih.gov
+# Optional: additional accepted audiences for JWT validation
+# ENTRA__ALLOWED_AUDIENCES=["api://00000000-0000-0000-0000-000000000000"]
 
-## Superuser Mode
+## Superuser Mode (local development only)
 RBAC__SUPERUSER_MODE=true
 ```
 

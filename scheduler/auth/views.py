@@ -1,31 +1,32 @@
 """Authentication views"""
 
-from flask import Blueprint, flash, redirect, render_template, url_for
+from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for
 
-from .forms import LoginForm
-from .session import get_ldap_client, login_user, logout_user
+from .jwt_utils import extract_bearer_token
+from .session import login_user_with_token, logout_user
 
 # Create blueprint
 auth = Blueprint("auth", __name__)
 
 
-@auth.route("/login", methods=["GET", "POST"])
+@auth.route("/login", methods=["GET"])
 def login():
-    """Handle user login"""
-    form = LoginForm()
+    """Render OAuth login page (frontend handles redirect)."""
+    return render_template("auth/login.html")
 
-    if form.validate_on_submit():
-        ldap = get_ldap_client()
-        success, user = ldap.authenticate(form.username.data, form.password.data)
 
-        if success and user:
-            login_user(user)
-            flash("Successfully logged in", "success")
-            return redirect(url_for("home"))
+@auth.route("/session", methods=["POST"])
+def establish_session():
+    """Create a server session from a validated JWT bearer token."""
+    token = extract_bearer_token(request.headers.get("Authorization"))
+    if not token:
+        return jsonify({"error": "Missing bearer token"}), 401
 
-        flash("Invalid username or password", "error")
+    user = login_user_with_token(token)
+    if not user:
+        return jsonify({"error": "Invalid or expired token"}), 401
 
-    return render_template("auth/login.html", form=form)
+    return jsonify({"email": user.email, "username": user.username})
 
 
 @auth.route("/logout")

@@ -8,7 +8,7 @@ The project uses multiple test environments:
    - Used by CI/CD pipeline
    - Configured via `.env.docker` files
    - PostgreSQL on port 5050
-   - LDAP on port 1389 (not yet used)
+   - Entra authentication is handled via browser flow (no local auth service)
    - Application on port 5051
 
 2. **Local Development Environment**

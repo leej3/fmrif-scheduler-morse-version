@@ -51,7 +51,7 @@ When using Docker, you'll need both sets of variables as shown in the Docker set
 
 ## Install/Run the application
 
-With postgres and ldap running independently you can configure and deploy the
+With Postgres running independently you can configure and deploy the
 application yourself. The python dependencies are specified in pyproject.toml.
 They can be installed using most python package managers. uv has many advantages
 over pip and is recommended. From project root the following installs uv, and
@@ -93,8 +93,7 @@ Dependencies:
 - Podman and Podman Compose
 
 The following will run a containerized postgres database, initialize the
-database schema, configure the application to use an example LDAP server,and run
-the application:
+database schema, and run the application:
 
 ```
 bash run.sh
@@ -102,7 +101,6 @@ bash run.sh
 
 This will start:
 - PostgreSQL on port 5050
-- LDAP server on port 1389 (not yet used)
 - Scheduler application on port 5051
 
 

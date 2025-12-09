@@ -56,7 +56,7 @@ basehead %} {% block head %}
             logoutBtn.disabled = true;
             logoutBtn.textContent = "Logging out...";
             await logout();
-            // logout() function redirects to home/login
+            window.location.href = "/auth/logout";
           });
         }
       }

@@ -1,107 +1,130 @@
 # scheduler/auth/session.py
 
-from datetime import datetime, timedelta
 from typing import Optional
 
-from flask import current_app, g, session
+from flask import abort, current_app, g, request, session
+from functools import wraps
 
-from scheduler.config import settings
+from scheduler import model
+from scheduler.logic import upsert_user
 
-from ..logic import upsert_user
-from ..model import db
-from .ldap import LDAPClient
-from .models import LDAPUser
-from .token_store import TokenStore
-
-
-def get_ldap_client() -> LDAPClient:
-    """Get LDAP client from application context"""
-    if not hasattr(current_app, "ldap_client"):
-        current_app.ldap_client = LDAPClient()
-    return current_app.ldap_client
+from .jwt_utils import extract_bearer_token, user_from_claims, verify_jwt
+from .models import SessionUser
 
 
-def login_user(user: LDAPUser) -> None:
-    """Log in a user by creating session and token"""
-    # Create/update local user record
+def _persist_user(user: SessionUser) -> None:
+    """Ensure the user exists in the local database."""
     upsert_user(user.username, user.email, user.display_name)
-    db.session.commit()
+    model.db.session.commit()
 
-    # Store token with LDAP-configured expiry
-    token_expiry = datetime.utcnow() + timedelta(seconds=settings.ldap.token_lifetime)
-    token = TokenStore.create_token(user.username, token_expiry)
-    user.token = token
-    user.token_expiry = token_expiry
 
-    # Make session permanent and set its expiry
+def _store_session(user: SessionUser) -> None:
+    """Store the authenticated user in the Flask session."""
     session.permanent = True
-
-    # Update session with all user info
     session["user_name"] = user.username
     session["display_name"] = user.display_name
     session["email"] = user.email
     session["groups"] = user.groups
-    session["token"] = token
 
-    # Store user in request context
+
+def authenticate_bearer_token(
+    auth_header: Optional[str], *, persist_session: bool = False
+) -> Optional[SessionUser]:
+    """Authenticate a request using a Bearer token."""
+    token = extract_bearer_token(auth_header)
+    if not token:
+        return None
+
+    claims, error = verify_jwt(token)
+    if error:
+        if current_app and current_app.logger:
+            current_app.logger.warning("JWT verification failed: %s", error)
+        return None
+
+    user = user_from_claims(claims)
+    if not user:
+        if current_app and current_app.logger:
+            current_app.logger.warning("JWT claims missing email")
+        return None
+
+    _persist_user(user)
+    if persist_session:
+        _store_session(user)
+
+    return user
+
+
+def login_user_with_token(token: str) -> Optional[SessionUser]:
+    """Create a session from a validated JWT token."""
+    claims, error = verify_jwt(token)
+    if error:
+        if current_app and current_app.logger:
+            current_app.logger.warning("JWT verification failed during login: %s", error)
+        return None
+
+    user = user_from_claims(claims)
+    if not user:
+        if current_app and current_app.logger:
+            current_app.logger.warning("JWT claims missing email during login")
+        return None
+
+    _persist_user(user)
+    _store_session(user)
     g.user = user
+    return user
 
 
 def logout_user() -> None:
-    """Log out current user"""
-    if "token" in session:
-        TokenStore.delete_token(session["token"])
-
+    """Log out current user."""
     session.pop("user_name", None)
-    session.pop("token", None)
-
+    session.pop("display_name", None)
+    session.pop("email", None)
+    session.pop("groups", None)
     if hasattr(g, "user"):
         delattr(g, "user")
 
 
-def get_user_from_session() -> Optional[LDAPUser]:
-    """Get user from current session if valid"""
-    try:
-        token = session.get("token")
-        if not token:
-            return None
+def get_user_from_session() -> Optional[SessionUser]:
+    """Get user from current session if present."""
+    username = session.get("user_name")
+    email = session.get("email")
+    display_name = session.get("display_name", "")
+    groups = session.get("groups", [])
 
-        user_id = TokenStore.validate_token(token)
-        if not user_id:
-            logout_user()
-            return None
-
-        ldap = get_ldap_client()
-        conn = ldap._get_connection()
-        if not conn:
-            current_app.logger.error("Failed to get LDAP connection")
-            logout_user()
-            return None
-
-        conn.search(
-            ldap.config.base_dn,
-            f"(&{ldap.config.user_search_filter}(uid={user_id}))",
-            attributes=["displayName", "mail", "uid"],
-        )
-
-        if not conn.entries:
-            logout_user()
-            return None
-
-        user_entry = conn.entries[0]
-        groups = ldap._get_user_groups(user_id)
-
-        return LDAPUser(
-            username=user_id,
-            display_name=str(user_entry.displayName),
-            email=str(user_entry.mail),
-            groups=groups,
-            token=token,
-            token_expiry=datetime.utcnow()
-            + timedelta(seconds=ldap.config.token_lifetime),
-        )
-
-    except Exception as e:
-        current_app.logger.error(f"Error during session validation: {str(e)}")
-        logout_user()
+    if not username or not email:
         return None
+
+    return SessionUser(
+        username=username,
+        email=email,
+        display_name=display_name,
+        groups=groups,
+    )
+
+
+def require_jwt(fn):
+    """Decorator to enforce JWT authentication (Bearer or established session)."""
+
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        # Already authenticated in request context
+        if getattr(g, "user", None):
+            return fn(*args, **kwargs)
+
+        # Try bearer token
+        bearer_user = authenticate_bearer_token(
+            request.headers.get("Authorization"), persist_session=False
+        )
+        if bearer_user:
+            g.user = bearer_user
+            return fn(*args, **kwargs)
+
+        # Try existing server session (set by /auth/session)
+        session_user = get_user_from_session()
+        if session_user:
+            g.user = session_user
+            return fn(*args, **kwargs)
+
+        abort(401, "Access denied: Authentication required")
+
+    return wrapper

@@ -23,6 +23,23 @@ body %}
 <!-- OAuth 2.0 modules -->
 <script src="{{ url_for('static', filename='js/oauth-utils.js') }}"></script>
 <script src="{{ url_for('static', filename='js/auth-manager.js') }}"></script>
+<script>
+  async function establishServerSession() {
+    const token = getAccessToken();
+    if (!token) {
+      return false;
+    }
+
+    const response = await fetch("/auth/session", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.ok;
+  }
+</script>
 
 <script>
   // Initialize auth on page load
@@ -30,8 +47,14 @@ body %}
     const auth = await initializeAuth();
 
     if (auth.isAuthenticated) {
-      // User already authenticated, redirect to dashboard
-      window.location.href = "/";
+      // User already authenticated, establish backend session then redirect
+      const ok = await establishServerSession();
+      if (ok) {
+        window.location.href = "/";
+        return;
+      }
+      document.getElementById("login-status").textContent =
+        "Could not establish session, please try logging in again.";
     } else {
       // Show login button
       document.getElementById("login-btn").style.display = "block";
