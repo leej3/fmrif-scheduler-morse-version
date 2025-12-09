@@ -302,12 +302,11 @@ def robots():
 
 @app.route("/force-login/<token>")
 def force_login(token):
-    user = logic.get_user_from_token(token)
-    if user is None:
-        abort(400)
-    session["user_name"] = user.id
-    g.user = user
-    return redirect("/")
+    # DEPRECATED: Phase 2 - JWT-only authentication
+    # Legacy endpoint for LDAP-based token login (reset_tokens table removed)
+    # Redirect to home; user must authenticate via Entra OAuth
+    flash("Please log in using your NIH credentials")
+    return redirect(url_for("auth.login"))
 
 
 @app.route("/")
@@ -1008,10 +1007,8 @@ def device(the_device):
 
 
 @app.route("/json/v1/log/<id>")
+@login_required
 def entry_log(id):
-    if g.user is None:
-        abort(403)
-
     eid, _, templateid = id.partition("-")
     device = logic.get_device_from_schedid(eid)
     if device is None:

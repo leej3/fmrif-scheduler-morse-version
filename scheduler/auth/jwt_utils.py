@@ -34,9 +34,13 @@ _CACHE = _JWKSCache()
 
 
 def _log_debug(message: str) -> None:
-    logger = getattr(current_app, "logger", None)
-    if logger:
-        logger.debug(message)
+    try:
+        logger = getattr(current_app, "logger", None)
+        if logger:
+            logger.debug(message)
+    except RuntimeError:
+        # Outside of Flask app context; skip logging
+        pass
 
 
 def _fetch_openid_configuration(discovery_url: str, cache_ttl: int) -> Dict:
