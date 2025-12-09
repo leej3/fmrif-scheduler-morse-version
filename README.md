@@ -137,3 +137,92 @@ npx playwright install --with-deps
 ```bash
 npm run test
 ```
+
+### Browser-based testing using X11 forwarding on Apple Silicon with XQuartz
+
+When testing browser-based applications via SSH on macOS with XQuartz, X11 forwarding requires additional setup due to macOS-specific socket handling.
+
+**Problem:** XQuartz on macOS uses a non-standard Unix socket path (`/private/tmp/com.apple.launchd.*/org.xquartz:0`) that SSH cannot connect back to when establishing X11 forwarding tunnels.
+
+#### Prerequisites
+
+1. Install XQuartz:
+```bash
+brew install --cask xquartz
+```
+After installation, log out and log back in (or restart).
+
+2. Create the standard X11 socket directory:
+```bash
+sudo mkdir -p /tmp/.X11-unix
+sudo chmod 1777 /tmp/.X11-unix
+```
+
+3. Install socat (for socket bridging):
+```bash
+brew install socat
+```
+
+#### SSH Configuration
+
+Add X11 forwarding settings to your SSH host configurations in `~/.ssh/config`:
+
+```ssh-config
+Host *
+    XAuthLocation /opt/X11/bin/xauth
+
+Host your-remote-host
+    ForwardX11 yes
+    ForwardX11Trusted yes
+```
+
+**Important:** Remote servers must have `xauth` installed. On Debian/Ubuntu:
+```bash
+sudo apt install xauth
+```
+
+#### DISPLAY Variable and Socket Bridge
+
+Add this to your `~/.bashrc` or `~/.zshrc`:
+
+```bash
+# Fix DISPLAY for SSH X11 forwarding on macOS
+if [[ "$DISPLAY" =~ ^/private/tmp/.* ]]; then
+    export DISPLAY=localhost:0
+    
+    # Start socat bridge for X11 Unix socket if not already running
+    if command -v socat >/dev/null 2>&1 && [ ! -S /tmp/.X11-unix/X0 ]; then
+        XQUARTZ_SOCKET=$(echo "$DISPLAY" | sed 's|^/private||')
+        if [ -S "$XQUARTZ_SOCKET" ]; then
+            socat UNIX-LISTEN:/tmp/.X11-unix/X0,fork UNIX-CONNECT:"$XQUARTZ_SOCKET" >/dev/null 2>&1 &
+        fi
+    fi
+fi
+```
+
+**Why socat is needed:** SSH expects X11 sockets in `/tmp/.X11-unix/X0`, but XQuartz creates them in `/private/tmp/com.apple.launchd.*/org.xquartz:0`. The socat bridge forwards connections between these two locations, allowing SSH's X11 forwarding tunnel to work correctly.
+
+#### Verification
+
+After setup, verify X11 forwarding works:
+
+```bash
+# Source your shell config
+source ~/.bashrc
+
+# Test SSH connection
+ssh your-remote-host
+
+# On remote host, check DISPLAY is set
+echo $DISPLAY  # Should show: localhost:10.0 (or similar)
+
+# Test with a GUI application
+firefox &
+```
+
+#### Common Issues
+
+- **"No xauth program; cannot forward X11"**: Install `xauth` on the remote server
+- **"Connection refused"**: Ensure XQuartz is running and the socat bridge is active
+- **Empty DISPLAY on remote**: Check that `ForwardX11 yes` is in your SSH config
+- **Local DISPLAY shows XQuartz path**: Source your shell config or restart your terminal
