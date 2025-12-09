@@ -32,8 +32,12 @@ from scheduler.find_env_file import find_envfile
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Load environment variables
+# Load environment variables (optional - works in Docker without .env file)
 env_file = find_envfile()
+if env_file:
+    logger.info(f"Loading .env from: {env_file}")
+else:
+    logger.info("No .env file - using system environment variables")
 
 
 class EntraConfig(BaseModel):
