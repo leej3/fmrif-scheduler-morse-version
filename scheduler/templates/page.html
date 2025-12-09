@@ -3,6 +3,10 @@ basehead %} {% block head %}
 <script id="app-root" type="application/json">
   {{ config.APPLICATION_ROOT }}
 </script>
+<!-- OAuth 2.0 authentication modules -->
+<script src="{{ url_for('static', filename='js/oauth-utils.js') }}"></script>
+<script src="{{ url_for('static', filename='js/auth-manager.js') }}"></script>
+<script src="{{ url_for('static', filename='js/api-client.js') }}"></script>
 <script
   type="module"
   src="{{ url_for('static', filename='script.js') }}"
@@ -38,7 +42,31 @@ basehead %} {% block head %}
         {% if user %}logged in as {{user.id}}{% if not user.active %}
         (inactive){% endif %}{% else %}not logged in{% endif %}
       </p>
+      <button id="logout-btn" style="display: none">Logout</button>
     </section>
+
+    <script>
+      // Show logout button if user is authenticated
+      async function initializeAuthUI() {
+        const auth = await initializeAuth();
+        const logoutBtn = document.getElementById("logout-btn");
+        if (auth.isAuthenticated && logoutBtn) {
+          logoutBtn.style.display = "inline-block";
+          logoutBtn.addEventListener("click", async () => {
+            logoutBtn.disabled = true;
+            logoutBtn.textContent = "Logging out...";
+            await logout();
+            // logout() function redirects to home/login
+          });
+        }
+      }
+      // Initialize on page load
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initializeAuthUI);
+      } else {
+        initializeAuthUI();
+      }
+    </script>
   </div>
 </div>
 {% with msgs = get_flashed_messages(with_categories=true) %} {% if msgs %}
