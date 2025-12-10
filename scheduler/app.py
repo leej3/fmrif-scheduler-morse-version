@@ -137,6 +137,14 @@ def render_error_page(code: int, msg: str, show_login: bool = False) -> Tuple[st
     return render_template("error.html", **data), code
 
 
+@app.errorhandler(401)
+def unauthorized(e):
+    # Redirect browser clients to login for unauthenticated requests
+    if g.user is None and request.accept_mimetypes.accept_html:
+        return redirect(url_for("auth.login"))
+    return render_error_page(401, "Unauthorized")
+
+
 @app.errorhandler(403)
 def access_denied(e):
     # Redirect to login page if user is not authenticated
