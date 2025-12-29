@@ -105,7 +105,7 @@ class CoreConfig(BaseModel):
 class ServerConfig(BaseModel):
     """Server configuration settings"""
 
-    server_name: str = "localhost:5051"
+    server_name: str = ""
     application_root: str = ""
 
 
@@ -237,39 +237,45 @@ class AppConfig(dict):
 
     def __init__(self, settings: Settings):
         super().__init__()
-        self.update(
-            {
-                "SECRET_KEY": settings.core.secret_key,
-                "SERVER_NAME": settings.server.server_name,
-                "APPLICATION_ROOT": settings.server.application_root,
-                "SQLALCHEMY_DATABASE_URI": settings.database_url,
-                "SQLALCHEMY_TRACK_MODIFICATIONS": settings.database.track_modifications,
-                "MAIL_SERVER": settings.mail.server,
-                "MAIL_PORT": settings.mail.port,
-                "MAIL_USE_TLS": settings.mail.use_tls,
-                "MAIL_USE_SSL": settings.mail.use_ssl,
-                "MAIL_USERNAME": settings.mail.username,
-                "MAIL_PASSWORD": settings.mail.password,
-                "nih_mailing_lists": settings.mail.mailing_lists,
-                "SESSION_COOKIE_NAME": settings.session.cookie_name,
-                "PERMANENT_SESSION_LIFETIME": settings.session.permanent_lifetime,
-                "SESSION_TYPE": settings.session.type,
-                "SESSION_USE_SIGNER": settings.session.use_signer,
-                "SESSION_SQLALCHEMY_TABLE": settings.session.sqlalchemy_table,
-                "SUPERUSER_MODE": settings.rbac.superuser_mode,
-                "NIH_NETWORKS": [
-                    ipaddress.ip_network(net) for net in settings.core.nih_networks
-                ],
-                "SITE_DEFAULT_SENDER": settings.core.site_sender,
-                "ENTRA_CLIENT_ID": settings.entra.client_id,
-                "ENTRA_TENANT_ID": settings.entra.tenant_id,
-                "ENTRA_DISCOVERY_URL": settings.entra.discovery_url,
-                "ENTRA_REDIRECT_URI": settings.entra.redirect_uri,
-                "ENTRA_AUDIENCES": settings.entra.audiences,
-                "ENTRA_ISSUER": settings.entra.issuer,
-                "ENTRA_JWKS_CACHE_TTL": settings.entra.jwks_cache_ttl,
-            }
-        )
+        config_dict = {
+            "SECRET_KEY": settings.core.secret_key,
+            "APPLICATION_ROOT": settings.server.application_root,
+            "SQLALCHEMY_DATABASE_URI": settings.database_url,
+            "SQLALCHEMY_TRACK_MODIFICATIONS": settings.database.track_modifications,
+            "MAIL_SERVER": settings.mail.server,
+            "MAIL_PORT": settings.mail.port,
+            "MAIL_USE_TLS": settings.mail.use_tls,
+            "MAIL_USE_SSL": settings.mail.use_ssl,
+            "MAIL_USERNAME": settings.mail.username,
+            "MAIL_PASSWORD": settings.mail.password,
+            "nih_mailing_lists": settings.mail.mailing_lists,
+            "SESSION_COOKIE_NAME": settings.session.cookie_name,
+            "PERMANENT_SESSION_LIFETIME": settings.session.permanent_lifetime,
+            "SESSION_TYPE": settings.session.type,
+            "SESSION_USE_SIGNER": settings.session.use_signer,
+            "SESSION_SQLALCHEMY_TABLE": settings.session.sqlalchemy_table,
+            "SUPERUSER_MODE": settings.rbac.superuser_mode,
+            "NIH_NETWORKS": [
+                ipaddress.ip_network(net) for net in settings.core.nih_networks
+            ],
+            "SITE_DEFAULT_SENDER": settings.core.site_sender,
+            "ENTRA_CLIENT_ID": settings.entra.client_id,
+            "ENTRA_TENANT_ID": settings.entra.tenant_id,
+            "ENTRA_DISCOVERY_URL": settings.entra.discovery_url,
+            "ENTRA_REDIRECT_URI": settings.entra.redirect_uri,
+            "ENTRA_AUDIENCES": settings.entra.audiences,
+            "ENTRA_ISSUER": settings.entra.issuer,
+            "ENTRA_JWKS_CACHE_TTL": settings.entra.jwks_cache_ttl,
+        }
+
+        # Only set SERVER_NAME if explicitly configured (avoid cookie domain issues)
+        if settings.server.server_name:
+            config_dict["SERVER_NAME"] = settings.server.server_name
+
+        # Allow Flask to set cookies on any domain/IP address
+        config_dict["SESSION_COOKIE_DOMAIN"] = None
+
+        self.update(config_dict)
 
     def __getattr__(self, name):
         try:

@@ -1,5 +1,7 @@
 import { PlaywrightTestConfig } from '@playwright/test';
 
+const baseURL = process.env.BASE_URL || 'http://localhost:5051';
+
 const config: PlaywrightTestConfig = {
   testDir: './tests',
   timeout: 30000,
@@ -7,7 +9,7 @@ const config: PlaywrightTestConfig = {
     timeout: 5000
   },
   use: {
-    baseURL: 'http://localhost:5051',
+    baseURL: baseURL,
     trace: 'on-first-retry',
   },
   projects: [
