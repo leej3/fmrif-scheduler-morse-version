@@ -8,6 +8,7 @@ const config: PlaywrightTestConfig = {
   expect: {
     timeout: 5000
   },
+  globalSetup: './tests/global-setup.ts',
   use: {
     baseURL: baseURL,
     trace: 'on-first-retry',

@@ -76,7 +76,7 @@ MAIL__PASSWORD=test
 ### Deployment Specific Configuration
 
 1. **Docker Environment**
-   - Uses `.env`
+   - Uses `.env` automatically and also mounts the .env file into the container
    - Services communicate via Docker network
    - Database host is `postgres`
 
