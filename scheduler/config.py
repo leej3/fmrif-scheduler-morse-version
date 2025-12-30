@@ -23,7 +23,7 @@ import os
 from typing import Dict, List, Optional
 from urllib.parse import quote
 
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from scheduler.find_env_file import find_envfile
@@ -32,12 +32,11 @@ from scheduler.find_env_file import find_envfile
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Load environment variables (optional - works in Docker without .env file)
+# Load environment variables
 env_file = find_envfile()
-if env_file:
-    logger.info(f"Loading .env from: {env_file}")
-else:
-    logger.info("No .env file - using system environment variables")
+logger.info(f"Loading .env from: {env_file}")
+
+PLACEHOLDER_UUID = "00000000-0000-0000-0000-000000000000"
 
 
 class EntraConfig(BaseModel):
@@ -105,7 +104,7 @@ class CoreConfig(BaseModel):
 class ServerConfig(BaseModel):
     """Server configuration settings"""
 
-    server_name: str = ""
+    server_name: str = "localhost:5051"
     application_root: str = ""
 
 
@@ -206,6 +205,30 @@ class Settings(BaseSettings):
             f"@{self.PGHOST}:{self.PGPORT}/{quote(self.PGDATABASE)}"
         )
 
+    @model_validator(mode="after")
+    def validate_required_settings(self) -> "Settings":
+        if not self.server.server_name.strip():
+            raise ValueError("SERVER__SERVER_NAME must be set")
+
+        if not self.rbac.superuser_mode:
+            missing = []
+            if not self.entra.client_id.strip() or self.entra.client_id == PLACEHOLDER_UUID:
+                missing.append("ENTRA__CLIENT_ID")
+            if not self.entra.tenant_id.strip() or self.entra.tenant_id == PLACEHOLDER_UUID:
+                missing.append("ENTRA__TENANT_ID")
+            if not self.entra.discovery_url.strip():
+                missing.append("ENTRA__DISCOVERY_URL")
+            if not self.entra.redirect_uri.strip():
+                missing.append("ENTRA__REDIRECT_URI")
+
+            if missing:
+                raise ValueError(
+                    "Missing required Entra settings when RBAC__SUPERUSER_MODE is false: "
+                    + ", ".join(missing)
+                )
+
+        return self
+
     def get_proxy_count(self) -> Optional[Dict[str, int]]:
         """Get proxy configuration counts from environment variables"""
         proxy_vars = {
@@ -239,6 +262,7 @@ class AppConfig(dict):
         super().__init__()
         config_dict = {
             "SECRET_KEY": settings.core.secret_key,
+            "SERVER_NAME": settings.server.server_name,
             "APPLICATION_ROOT": settings.server.application_root,
             "SQLALCHEMY_DATABASE_URI": settings.database_url,
             "SQLALCHEMY_TRACK_MODIFICATIONS": settings.database.track_modifications,
@@ -267,13 +291,6 @@ class AppConfig(dict):
             "ENTRA_ISSUER": settings.entra.issuer,
             "ENTRA_JWKS_CACHE_TTL": settings.entra.jwks_cache_ttl,
         }
-
-        # Only set SERVER_NAME if explicitly configured (avoid cookie domain issues)
-        if settings.server.server_name:
-            config_dict["SERVER_NAME"] = settings.server.server_name
-
-        # Allow Flask to set cookies on any domain/IP address
-        config_dict["SESSION_COOKIE_DOMAIN"] = None
 
         self.update(config_dict)
 

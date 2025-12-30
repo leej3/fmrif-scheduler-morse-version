@@ -18,8 +18,6 @@ RUN uv sync
 COPY ./scheduler ./scheduler
 COPY ./entrypoint.sh ./entrypoint.sh
 COPY ./alembic.ini ./alembic.ini
-# Copy environment configuration for migrations (will be overridden by docker compose volume)
-COPY ./.env.sample.local ./.env
 RUN uv sync
 
 # Make entrypoint executable

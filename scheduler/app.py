@@ -137,10 +137,20 @@ def render_error_page(code: int, msg: str, show_login: bool = False) -> Tuple[st
     return render_template("error.html", **data), code
 
 
+def wants_html_response() -> bool:
+    accept = request.accept_mimetypes
+    if not accept:
+        return False
+    return (
+        accept.best_match(["text/html", "application/json"]) == "text/html"
+        and accept["text/html"] > accept["application/json"]
+    )
+
+
 @app.errorhandler(401)
 def unauthorized(e):
     # Redirect browser clients to login for unauthenticated requests
-    if g.user is None and request.accept_mimetypes.accept_html:
+    if g.user is None and wants_html_response():
         return redirect(url_for("auth.login"))
     return render_error_page(401, "Unauthorized")
 
@@ -170,7 +180,8 @@ def force_login_cli(user):
         click.echo(f"no such user {user}")
         return
     token = logic.create_reset_token_for(user)
-    click.echo(url_for("force_login", token=token))
+    with app.test_request_context():
+        click.echo(url_for("force_login", token=token))
 
 
 @app.cli.command("deactivate-user")

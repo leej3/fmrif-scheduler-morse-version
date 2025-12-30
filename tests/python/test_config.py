@@ -125,7 +125,12 @@ def test_config_hierarchy(
     _get_nested_attr(settings, config_path)
 
     # Test .env file override
-    env_content = f"{env_var}={env_value}\n"  # Use the actual test value instead of 'envfile-value'
+    env_content = "\n".join(
+        [
+            "RBAC__SUPERUSER_MODE=true",
+            f"{env_var}={env_value}",
+        ]
+    ) + "\n"
     temp_env_file.write_text(env_content)
     settings = Settings(_env_file=temp_env_file)
     envfile_value = _get_nested_attr(settings, config_path)
@@ -369,7 +374,7 @@ def test_core_config_validation():
 def test_server_config_validation():
     """Test ServerConfig validation"""
     config = ServerConfig()
-    assert config.server_name == ""
+    assert config.server_name == "localhost:5051"
     assert config.application_root == ""
 
     config = ServerConfig(server_name="test.server:8080", application_root="/app")
@@ -440,6 +445,7 @@ def test_settings_env_override(temp_env_file, monkeypatch):
     """Test environment variable override functionality"""
     # Write test values to temporary .env file
     env_content = """
+RBAC__SUPERUSER_MODE=true
 PGHOST=testhost
 PGPORT=5433
 CORE__SECRET_KEY=test-secret

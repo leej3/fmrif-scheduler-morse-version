@@ -9,9 +9,7 @@ logger = logging.getLogger(__name__)
 def find_envfile():
     env_file = dotenv.find_dotenv()
     if not env_file:
-        # No .env file found - OK in Docker, environment vars come from container config
-        logger.info("No .env file found (OK in Docker containers, using environment variables)")
-        return None
+        raise ValueError("Failed to find .env")
 
     env_file = Path(env_file).resolve()
     logger.info(f"Setting environment variables from {env_file} (with override=True)")
