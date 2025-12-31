@@ -319,6 +319,23 @@ def robots():
     return Response("User-agent: *\nDisallow: /", mimetype="text/plain")
 
 
+@app.route("/static/config/entra-config.json")
+def entra_config():
+    """Serve Entra configuration from environment variables.
+
+    This endpoint dynamically generates the Entra OAuth configuration
+    from environment variables, avoiding hardcoded credentials in git.
+    """
+    config = {
+        "client_id": settings.entra.client_id,
+        "tenant_id": settings.entra.tenant_id,
+        "discovery_url": settings.entra.discovery_url,
+        "redirect_uri": settings.entra.redirect_uri,
+        "allowed_audiences": settings.entra.allowed_audiences,
+    }
+    return jsonify(config)
+
+
 @app.route("/force-login/<token>")
 def force_login(token):
     # DEPRECATED: Phase 2 - JWT-only authentication
