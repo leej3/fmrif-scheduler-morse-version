@@ -59,7 +59,7 @@ test.describe('OAuth 2.0 Authentication', () => {
       try {
         const response = await fetch('/static/config/entra-config.json');
         const config = await response.json();
-        return config.client_id && config.tenant_id && config.redirect_uri;
+        return !!(config.client_id && config.tenant_id && config.redirect_uri);
       } catch {
         return false;
       }
