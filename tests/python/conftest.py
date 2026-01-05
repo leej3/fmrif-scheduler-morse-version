@@ -12,10 +12,15 @@ from scheduler.config import app_config
 
 def create_test_database():
     """Create test database if it doesn't exist"""
+    # If PGHOST is set, we're in standalone mode (not Docker)
+    # Skip database creation - use existing database
+    if os.getenv("PGHOST"):
+        return
+
     test_db = os.getenv("PGDATABASE", "scheduler_test")
     conn = psycopg2.connect(
         host=os.getenv("PGHOST", "localhost"),
-        port=os.getenv("PGPORT", "5444"),
+        port=os.getenv("PGPORT", "5050"),
         user=os.getenv("PGUSER", "postgres"),
         password=os.getenv("PGPASSWORD", "password"),
         database="postgres",
@@ -46,12 +51,12 @@ def app():
     # If PGHOST is set, use it directly (standalone mode)
     # Otherwise use the default Docker setup
     if os.getenv("PGHOST"):
-        # Use environment variables for database connection
+        # Use environment variables for database connection (standalone mode, not Docker)
         test_config["SQLALCHEMY_DATABASE_URI"] = (
             f"postgresql+psycopg2://{os.getenv('PGUSER', 'postgres')}:"
             f"{os.getenv('PGPASSWORD', 'password')}@"
-            f"{os.getenv('PGHOST')}:{os.getenv('PGPORT', '5444')}/"
-            f"{os.getenv('PGDATABASE', 'scheduler_test')}"
+            f"{os.getenv('PGHOST')}:{os.getenv('PGPORT', '5050')}/"
+            f"{os.getenv('PGDATABASE', 'fmrif_scheduler')}"
         )
     else:
         # Default Docker setup

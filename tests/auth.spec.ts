@@ -57,7 +57,7 @@ test.describe('OAuth 2.0 Authentication', () => {
     // Verify OAuth config is properly loaded
     const configLoaded = await loginPage.page.evaluate(async () => {
       try {
-        const response = await fetch('/static/config/entra-config.json');
+        const response = await fetch('/api/config/entra.json');
         const config = await response.json();
         return !!(config.client_id && config.tenant_id && config.redirect_uri);
       } catch {

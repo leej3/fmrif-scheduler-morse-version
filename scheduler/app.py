@@ -319,12 +319,15 @@ def robots():
     return Response("User-agent: *\nDisallow: /", mimetype="text/plain")
 
 
-@app.route("/static/config/entra-config.json")
+@app.route("/api/config/entra.json")
 def entra_config():
     """Serve Entra configuration from environment variables.
 
     This endpoint dynamically generates the Entra OAuth configuration
     from environment variables, avoiding hardcoded credentials in git.
+
+    Changed from /static/config/entra-config.json to /api/config/entra.json
+    to avoid conflict with Flask's static file handler.
     """
     config = {
         "client_id": settings.entra.client_id,

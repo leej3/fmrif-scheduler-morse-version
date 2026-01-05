@@ -50,7 +50,7 @@ def test_login_page_accessible(base_url):
 
 
 def test_entra_config_loads(base_url):
-    config = json.loads(_fetch_text(f"{base_url}/static/config/entra-config.json"))
+    config = json.loads(_fetch_text(f"{base_url}/api/config/entra.json"))
 
     required_fields = [
         "client_id",

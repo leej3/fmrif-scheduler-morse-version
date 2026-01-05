@@ -38,7 +38,7 @@ test.describe('OAuth 2.0 / Entra Authentication', () => {
   test('should load Entra configuration', async ({ page }) => {
     // Verify entra-config.json is loaded and accessible
     const configResponse = await page.evaluate(async () => {
-      const response = await fetch('/static/config/entra-config.json');
+      const response = await fetch('/api/config/entra.json');
       return response.json();
     });
 
