@@ -7,6 +7,10 @@ import pytest
 from flask import Flask
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
+# Load .env file before importing scheduler config
+from dotenv import load_dotenv
+load_dotenv()
+
 from scheduler import model
 from scheduler.config import app_config
 
@@ -17,9 +21,9 @@ def create_test_database():
     test_db = "fmrif_scheduler_test"
 
     # Get database connection parameters from environment
-    # Read from .env via os.getenv, which has already loaded it
+    # These should be loaded from .env by the load_dotenv() call at module level
     pghost = os.getenv("PGHOST", "localhost")
-    pgport = os.getenv("PGPORT", "5432")  # Default to standard PostgreSQL port
+    pgport = int(os.getenv("PGPORT", "5444"))  # Default matches .env file
     pguser = os.getenv("PGUSER", "postgres")
     pgpassword = os.getenv("PGPASSWORD", "password")
 
@@ -61,7 +65,7 @@ def app():
     # Always use a separate test database for all test environments
     test_db_name = "fmrif_scheduler_test"
     pghost = os.getenv("PGHOST", "localhost")
-    pgport = os.getenv("PGPORT", "5432")  # Will be read from .env if set
+    pgport = int(os.getenv("PGPORT", "5444"))  # Matches .env file
     pguser = os.getenv("PGUSER", "postgres")
     pgpassword = os.getenv("PGPASSWORD", "password")
 
