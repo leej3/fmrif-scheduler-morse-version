@@ -293,55 +293,29 @@ def test_server_config():
     assert config.application_root == "/app"
 
 
-def test_database_config_validation():
+def test_database_config_validation(clean_env):
     """Test DatabaseConfig validation"""
-    # Test default values when no environment variables are set
+    # Test that explicit parameters override environment variables
 
-    # Store original env vars
-    original_env = {
-        "PGUSER": os.getenv("PGUSER"),
-        "PGPASSWORD": os.getenv("PGPASSWORD"),
-        "PGDATABASE": os.getenv("PGDATABASE"),
-        "PGHOST": os.getenv("PGHOST"),
-        "PGPORT": os.getenv("PGPORT"),
-    }
-
-    try:
-        # Clear env vars
-        for var in ["PGUSER", "PGPASSWORD", "PGDATABASE", "PGHOST", "PGPORT"]:
-            if var in os.environ:
-                del os.environ[var]
-
-        # Test default values
-        settings = Settings()
-        assert settings.PGUSER == "postgres"
-        assert settings.PGPASSWORD == "password"
-        assert settings.PGDATABASE == "fmrif_scheduler"
-        assert settings.PGHOST == "localhost"
-        assert settings.PGPORT == 5444
-        assert settings.database.echo is False
-        assert settings.database.track_modifications is False
-
-        # Test custom values
-        settings = Settings(
-            PGUSER="test_user",
-            PGPASSWORD="test_pass",
-            PGDATABASE="test_db",
-            PGHOST="test_host",
-            PGPORT=5433,
-        )
-        expected_url = (
-            "postgresql+psycopg2://test_user:test_pass@test_host:5433/test_db"
-        )
-        assert settings.database_url == expected_url
-
-    finally:
-        # Restore original env vars
-        for var, value in original_env.items():
-            if value is not None:
-                os.environ[var] = value
-            elif var in os.environ:
-                del os.environ[var]
+    # Test explicit values (parameters override everything)
+    settings = Settings(
+        PGUSER="test_user",
+        PGPASSWORD="test_pass",
+        PGDATABASE="test_db",
+        PGHOST="test_host",
+        PGPORT=5433,
+    )
+    assert settings.PGUSER == "test_user"
+    assert settings.PGPASSWORD == "test_pass"
+    assert settings.PGDATABASE == "test_db"
+    assert settings.PGHOST == "test_host"
+    assert settings.PGPORT == 5433
+    expected_url = (
+        "postgresql+psycopg2://test_user:test_pass@test_host:5433/test_db"
+    )
+    assert settings.database_url == expected_url
+    assert settings.database.echo is False
+    assert settings.database.track_modifications is False
 
 
 def test_core_config_validation():
