@@ -7,15 +7,7 @@ import pytest
 from flask import Flask
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
-# Load .env file before importing scheduler config
-from pathlib import Path
-from dotenv import load_dotenv
-
-# Load .env from project root (parent of tests directory)
-project_root = Path(__file__).parent.parent.parent
-env_file = project_root / '.env'
-load_dotenv(env_file)
-
+# Import scheduler config (will auto-load .env)
 from scheduler import model
 from scheduler.config import app_config
 
