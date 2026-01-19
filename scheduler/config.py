@@ -262,7 +262,6 @@ class AppConfig(dict):
         super().__init__()
         config_dict = {
             "SECRET_KEY": settings.core.secret_key,
-            "SERVER_NAME": settings.server.server_name,
             "APPLICATION_ROOT": settings.server.application_root,
             "SQLALCHEMY_DATABASE_URI": settings.database_url,
             "SQLALCHEMY_TRACK_MODIFICATIONS": settings.database.track_modifications,
@@ -291,6 +290,10 @@ class AppConfig(dict):
             "ENTRA_ISSUER": settings.entra.issuer,
             "ENTRA_JWKS_CACHE_TTL": settings.entra.jwks_cache_ttl,
         }
+
+        # Only set SERVER_NAME if not empty (for reverse proxy compatibility)
+        if settings.server.server_name.strip():
+            config_dict["SERVER_NAME"] = settings.server.server_name
 
         self.update(config_dict)
 
