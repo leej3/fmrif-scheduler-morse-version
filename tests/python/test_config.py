@@ -343,9 +343,9 @@ def test_core_config_validation():
 
 
 def test_server_config_validation():
-    """Test ServerConfig validation"""
+    """Test ServerConfig validation - empty server_name for reverse proxy compatibility"""
     config = ServerConfig()
-    assert config.server_name == "localhost:5051"
+    assert config.server_name == ""  # Empty for reverse proxy (nginx) compatibility
     assert config.application_root == ""
 
     config = ServerConfig(server_name="test.server:8080", application_root="/app")
