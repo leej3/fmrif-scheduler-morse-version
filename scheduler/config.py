@@ -104,7 +104,7 @@ class CoreConfig(BaseModel):
 class ServerConfig(BaseModel):
     """Server configuration settings"""
 
-    server_name: str = "localhost:5051"
+    server_name: str = ""  # Empty allows Flask to work with reverse proxies (nginx, etc.)
     application_root: str = ""
 
 
@@ -207,8 +207,8 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def validate_required_settings(self) -> "Settings":
-        if not self.server.server_name.strip():
-            raise ValueError("SERVER__SERVER_NAME must be set")
+        # SERVER_NAME can be empty (recommended for reverse proxy setups)
+        # When empty, Flask accepts requests from any host
 
         if not self.rbac.superuser_mode:
             missing = []
