@@ -332,6 +332,7 @@ def entra_config():
     config = {
         "client_id": settings.entra.client_id,
         "tenant_id": settings.entra.tenant_id,
+        "authorization_endpoint": f"https://login.microsoftonline.com/{settings.entra.tenant_id}/oauth2/v2.0/authorize",
         "discovery_url": settings.entra.discovery_url,
         "redirect_uri": settings.entra.redirect_uri,
         "allowed_audiences": settings.entra.allowed_audiences,
